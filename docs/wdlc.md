@@ -25,6 +25,7 @@ Design Process & Rationale
 
 equipment checks for logistics and an element of excitement (fast paced, modern and standardized) in gaphic design
 
+theatrical and live-event vocabulary to show importance of pre-planning infrastructure for runtime management.
 
 ## Mockup
 
