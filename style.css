@@ -1,6 +1,15 @@
+:root{
+    --primary-color: rgb(79, 0, 79);
+    --primary-color-accent-medium: rgb(119, 20, 117);
+    --primary-color-accent-light: rgb(210, 62, 207);
+    --secondary-color: rgb(251, 199, 135);
+    --secondary-color-accent-light: antiquewhite;
+    --color-white: white;
+}
+
 *{
-    background-color: rgb(255, 255, 255);
-    color: rgb(79, 0, 79);
+    background-color: --var(--white-color);
+    color: var(--primary-color);
     scroll-behavior: smooth;
 }
 
@@ -17,43 +26,57 @@ body{
     font-family: 'CarterOne';
     src: url('./assets/fonts/CarterOne-Regular.ttf');
 }
+@font-face{
+    font-family: 'Graduate';
+    src: url('./assets/fonts/Graduate-Regular.ttf');
+}
+@font-face{
+    font-family: 'BlackOps';
+    src: url('./assets/fonts/BlackOpsOne-Regular.ttf');
+}
 
 #navbar-wrapper{
+    background: linear-gradient(0, var(--secondary-color-accent-light), var(--secondary-color));
+    margin: 0;
+}
+#navbar-container{
+    background: transparent;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    margin: 1rem;
+    font-family: Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: 1.2rem;
+    padding: .5rem 0;
+}
+#navbar-logo{
+    background: transparent;
+    font-family: 'BlackOps', serif, 'Times New Roman', Times;
+    font-size: 2.5rem;
+    flex: 1;
+    padding-left: 2rem;
 }
 #navbar-links{
+    background: transparent;
     display: flex;
     flex-direction: row;
     list-style:none;
     gap: 2rem;
     padding-right: 1rem;
 }
-#navbar-wrapper{
-    font-family: 'CarterOne';
-    font-size: 1.2rem;
-}
 #navbar-wrapper li{
+    background: transparent;
     padding: .2rem 1rem;
 }
 #navbar-wrapper a{
+    background: transparent;
     text-decoration:none;
     transform-origin: left;
 }
 #navbar-wrapper a:hover{
     color:rgb(196, 53, 194);
     text-decoration: underline;
-}
-
-#navbar-logo{
-    flex: 1;
-    padding-left: 2rem;
-}
-#cart{
-    padding: .2rem 2rem;
 }
 
 #services-wrapper{
@@ -66,7 +89,7 @@ body{
 }
 
 hr{
-    color: white;
+    color: var(--color-white);
     /* background: none; */
     /* border-top: .15rem rgba(245, 245, 245, 0.516) dashed; */
     z-index: 1000;
@@ -74,47 +97,68 @@ hr{
 
 }
 #footer-wrapper{
-    max-height: 50vw;
-    background-color: rgb(79, 0, 79) !important;
     margin: 0;
-    padding: 0;
-    min-height: 15rem;
+    background-color: var(--primary-color);
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
-    justify-content: start;
 }
 
-#footer-links{
-    display: flex;
-    flex-direction: row;
-    align-self: flex-start;
+.footer-grid{
+    max-height: 50vw;
+    width:fit-content;
+    margin: auto;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 30vw);
+    grid-template-rows: repeat(1, 15vw);
     font-family: Helvetica, sans-serif;
-    font-size: larger;
-    gap: 4rem;
-    padding-left: 10rem;
+    background-color: transparent;
 }
-#footer-links a{
+.footer-grid-cell{
+    background-color: transparent;
+    color:white;
+    color: var(--secondary-color);
+    font-family: 'Graduate', 'CarterOne';
+    font-size: 2rem;
+    font-weight: bold;
+    /* height:fit-content; */
+    /* background-color: rgba(0, 255, 255, 0.317); */
+    /* border: 10px solid peru; */
+}
+
+.footer-links{
+    display: flex;
+    flex-direction: column;
+    align-self: flex-start;
+    /* gap: 4rem;
+    padding-left: 10rem; */
+}
+.footer-links a{
+    background-color: var(--primary-color);
+    font-family: Helvetica, sans-serif;
+    color: var(--color-white);
+    font-size: 16px;
     text-decoration: none;
 }
-#footer-links a:hover{
+.footer-links a:hover{
     color:rgb(196, 53, 194);
 }
+#footer-copy{
+    align-self: center;
+    background-color: transparent;
+    color: var(--color-white);
+}
 
-#footer-links-about{
+#footer-detailed-wrapper{
     display: flex;
     flex-direction: column;
 }
-
-#footer-links-contact{
-    display: flex;
-    flex-direction: column;
-}
-
 #footer-logo{
-    background-color: rgb(79, 0, 79);
-    font-family: 'LibreBarcode', serif, 'Times New Roman', Times;
-    font-size: clamp(3rem, 31vw - 1rem, 100vw);
-    color:rgb(251, 199, 135);
-    /* align-self: flex-start; */
+    background: linear-gradient(0, var(--primary-color-accent-light), var(--primary-color-accent-medium), var(--primary-color));
+    font-family: 'BlackOps', 'LibreBarcode', serif, 'Times New Roman', Times;
+    font-size: clamp(3rem, 23vw - 1rem, 100vw);
+    color:var(--secondary-color);
+    text-align: center;
 }
