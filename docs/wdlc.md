@@ -5,18 +5,18 @@
 >[!TIP] 
 > Scoped from doc: [Design Note](./design-note.md)
 
-* **As-Is System:** Manual paper sheets and email bookings causing tracking delays.
-* **Core Problems:**
+**As-Is System:** Manual paper sheets and email bookings causing tracking delays.
+**Core Problems:**
 * **P1:** Stale stock data (late updates cause false availability).
 * **P2:** Untracked damage (no handover/return condition logs).
 * **P3:** Untraceable borrowers (unverified contact details).
 
-* **Key Requirements:**
+**Key Requirements:**
 * Live inventory tracking & fast UI filtering.
 * Mandatory `@nust.edu.pk` institutional email verification.
 * Return-date limits (up to 4 months) & condition logging.
 
-* **Scope:** Frontend client-side prototype (`localStorage`); excludes backend databases and payments.
+**Scope:** Frontend client-side prototype (`localStorage`); excludes backend databases and payments.
 
 
 # 2. Planning
@@ -24,7 +24,7 @@
 ([Link](https://drive.google.com/file/d/1fpGi3JjfIf-3zHNsW-CHaH2bYRACdui1/view?usp=drive_link))
 
 ## Sitemap
-[Sitemap](./img/sitemap.png)
+![Sitemap](./img/sitemap.png)
 
 ## Wireframe
 Wireframes are added in [Wireframe DOC](./wireframe.md)
@@ -40,17 +40,17 @@ Theatrical and live-event vocabulary to show importance of pre-planning infrastr
 ## Typography: Fonts and Colours
 
 **Colours:**
-*TO convey event excitement with glow colours*
-- soft yellow/golden accents against dark purple
-- NOT blue else it'll look like a corporate app
+*To convey event excitement with glow colours*
+- Soft yellow/golden accents against constrasting dark purple colour with lighter accents
+- not blue else it'll look like a corporate app
 
 **Fonts:**
 
 - Helvetica, serif for normal body text
-- JetBrainsMono, Monospace font for details, convey logistics accuracy
-- BlackOps for logo art, stenciled feel convey's DIY projects/ signboard creation, matching the university scenario
+- JetBrainsMono/ Monospace font for details, convey logistics accuracy
+- BlackOps for logo art, stenciled feel convey's DIY projects/ signboard creation, matching the university scenario of equipment arrangements
 - LibraBarcode for token code (shows text with barcode)
-- Graduate for headings, slabs give rigid feel, helping with heirarchy placement and providing uniform, relaible feeel, which works well for logistics.
+- Graduate for headings, slabs give rigid feel, helping with heirarchy placement and providing uniform, relaible feel, which works well for logistics.
 
 ## Component Specifications
 
@@ -127,17 +127,16 @@ A current cart has productID with the quantity. The quantity is greater than 0 a
 ```
 # 4. Content Creation
 
-Name: GearRig (Responsible & professional Depot to store and obtain quality equipment)
+**Name:** GearRig (Responsible & professional Depot to store and obtain quality equipment)
 
-Slogan: Because the show must go on (convey sense of urgency)
+**Slogan:** Because the show must go on (convey sense of urgency)
 
 **Landing Page:**
 
-Borrow items ethically and responsibly 
-Search among a catalogue of quality and variety
+Borrow items ethically and responsibly. Search among a catalogue of quality and variety products
 
-[CTA] Take me there : catalogue.html
-[CTA] How it works : process section
+- [CTA] Take me there : catalogue.html
+- [CTA] How it works : process section
 
 **Process flow:**
 
