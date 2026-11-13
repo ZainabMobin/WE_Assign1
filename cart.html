@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catalogue</title>
+    <title>Cart</title>
     <link rel="stylesheet" href="./style.css">
 </head>
-<body>
+<body onload="initializeCart()">
     
     <nav id="navbar-wrapper">
         <div id="navbar-container">
-            <div id="navbar-logo">GearRig</div>
+            <div id="navbar-logo">
+                <a href="./index.html">GearRig</a>
+            </div>
             <ul id="navbar-links">
                 <li><a href="./index.html">HOME</a></li>
-                <li><a href="#process-wrapper">SERVICES</a></li>
+                <li><a href="./index.html#process-wrapper">SERVICES</a></li>
                 <li><a href="./catalogue.html">CATALOGUE</a></li>
                 <li><a href="./index.html#contact">CONTACT</a></li>
                 <li><a href="#">CART</a></li>
@@ -21,6 +23,41 @@
         </div>
     </nav>
     
+
+    <main class="cart-page-container">
+    <h1 class="cart-page-title">Cart</h1>
+    <div class="cart-wrapper">
+        <div class="cart-grid"></div>
+
+        <!-- Right Column: Checkout Form Wrapper -->
+        <div class="checkout-wrapper">
+            <form class="checkout-form" id="checkout-form">
+                <div class="form-group">
+                    <label for="student-email">University Email</label>
+                    <input type="email" id="student-email" placeholder="e.g., student@nust.edu.pk" 
+                    pattern=".+@nust.edu.pk" title="Please enter an email address ending in @nust.edu.pk" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="return-date">Return Date</label>
+                    <input type="date" id="return-date" required>
+                </div>
+
+                <!-- logic not implemented yet! -->
+                <!-- <div class="verification-group">
+                    <div class="form-group">
+                        <label for="conf-code">Confirmation Code</label>
+                        <input type="text" id="conf-code" placeholder="Token code">
+                    </div>
+                    <button type="button" class="btn-verify">Verify</button>
+                </div> -->
+                <button type="submit" class="checkout-submit-btn">Checkout</button>
+            </form>
+        </div>
+    </div>
+    </main>
+
+    <hr>
     <div id="footer-wrapper">
         <div class="footer-grid">
             <div class="footer-grid-cell"> 
@@ -40,7 +77,6 @@
                     <a href="https://maps.app.goo.gl/MR4v8sxm2oeKmf226" target="_blank">Pickup point: Lobby, SEECS UG Block, NUST H12</a>
                 </div>
             </div>
-
         </div>
 
         <div id="footer-copy">&copy; 2026 GearRig, All Rights Reserved</div>
