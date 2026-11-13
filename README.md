@@ -32,8 +32,9 @@ Because this application runs entirely as a client-side frontend prototype using
 * **Client vs. Server:** This application runs 100% in the browser client. All equipment inventory, cart states, and checkout restrictions persist locally using the browser's `localStorage` API without requiring an external backend database.
 * **Responsive Design:** Includes media-query for mobile devices, tablets, and desktop displays.
 
-## AI Assistance and cite help
+## AI Assistance, Assets and help citation
 
 - [Thaura.ai](https://thaura.ai/)
 - [Gemini](https://gemini.google.com/)
 - [StackOverflow](https://stackoverflow.com/questions/74913209/how-to-bring-circles-to-a-vertical-line-in-css-for-vertical-timeline)
+- [GoogleFonts](https://fonts.google.com/)
