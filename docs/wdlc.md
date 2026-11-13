@@ -42,9 +42,10 @@ theatrical and live-event vocabulary to show importance of pre-planning infrastr
 
 **Fonts:**
 
-- Monospace font for details, convey logistics accuracy
+- Helvetica, serif for normal body text
+- JetBrainsMono, Monospace font for details, convey logistics accuracy
 - BlackOps for logo art, stenciled feel convey's DIY projects/ signboard creation, matching the university scenario
-- LibraBarcode for token generation
+- LibraBarcode for token code (shows text with barcode)
 - Graduate for headings, slabs give rigid feel, helping with heirarchy placement and providing uniform, relaible feeel, which works well for logistics.
 
 # Content Creation
@@ -63,13 +64,23 @@ Search among a catalogue of quality and variety
 
 **Process flow:**
 
-- Browse catalogue and Add items to cart
-- Change quantity
-- Verify student email and duration
-- Get order token upon successful verification
-- Bring order token proof to depot to claim stuff
-- Return stuff within agreed duration
-
+```
+[ 1. Browse & Select ]
+       │
+       ▼ (User adds items & updates quantities in cart.html)
+[ 2. Authentication ]
+       │
+       ▼ (User enters student email & requested borrow duration)
+[ 3. Token Generation ]
+       │
+       ▼ (System validates availability & issues a secure Order Token)
+[ 4. Depot Claim ]
+       │
+       ▼ (User brings token proof to physical depot to claim equipment)
+[ 5. Active Deployment & Return ]
+       │
+       └─► (User returns gear within agreed duration to close loop)
+```
 
 # System Design & Development
 

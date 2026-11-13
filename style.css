@@ -5,6 +5,7 @@
     --secondary-color: rgb(251, 199, 135);
     --secondary-color-accent-light: antiquewhite;
     --color-white: white;
+    --color-black: black;
     --color-gray: rgba(255, 255, 255, 0.197);
 }
 
@@ -24,16 +25,16 @@ body{
     src: url('./assets/fonts/LibreBarcode128Text-Regular.ttf');
 }
 @font-face{
-    font-family: 'CarterOne';
-    src: url('./assets/fonts/CarterOne-Regular.ttf');
-}
-@font-face{
     font-family: 'Graduate';
     src: url('./assets/fonts/Graduate-Regular.ttf');
 }
 @font-face{
     font-family: 'BlackOps';
     src: url('./assets/fonts/BlackOpsOne-Regular.ttf');
+}
+@font-face{
+    font-family: 'JetBrainsMono';
+    src: url('./assets/fonts/JetBrainsMono-Light.ttf');
 }
 
 #navbar-wrapper{
@@ -50,14 +51,26 @@ body{
     font-weight: bold;
     font-size: 1.2rem;
     padding: .5rem 0;
+    
 }
-#navbar-logo{
+#navbar-wrapper #navbar-logo{
     background: transparent;
     font-family: 'BlackOps', serif, 'Times New Roman', Times;
     font-size: 2.5rem;
     flex: 1;
     padding-left: 2rem;
 }
+#navbar-wrapper #navbar-logo a{
+    text-decoration: none;
+    display: inline-block;
+    transition: text-shadow 0.2s ease;
+}
+#navbar-wrapper #navbar-logo a:hover{
+    text-decoration: none;
+    color: inherit;
+    text-shadow: 0 2px 12px var(--secondary-color), 0 0 4px var(--primary-color-accent-medium);
+}
+
 #navbar-links{
     background: transparent;
     display: flex;
@@ -74,19 +87,85 @@ body{
     background: transparent;
     text-decoration:none;
     transform-origin: left;
+    display: inline-block;
+    transition: transform 0.1s ease, color 0.2s ease;
 }
 #navbar-wrapper a:hover{
     color:rgb(196, 53, 194);
     text-decoration: underline;
 }
 
-#services-wrapper{
-    height: 35vw;
-    background-color: rgba(165, 42, 163, 0.299);
+#hero-wrapper {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: calc(100vh - 80px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: linear-gradient( var(--primary-color), var(--primary-color-accent-medium), var(--primary-color-accent-light) );
+    color: var(--white-color, #fff);
 }
-#browse-wrapper{
-    height: 35vw;
-    background-color: rgba(165, 42, 42, 0.299);
+#hero-content {
+    /* margin: 0 auto; */
+}
+
+.hero-badge {
+    font-family: 'Graduate', serif;
+    color: #fff;
+    text-transform: uppercase;
+    font-size: clamp(2.5rem, 6vw, 10rem);
+    font-weight: bold;
+    letter-spacing: 1px;
+    line-height: 9rem;
+    margin-top: 4rem;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+}
+
+#hero-wrapper h1 {
+    font-family: 'JetBrainsMono', monospace, consolas, serif;
+    margin: 4rem;
+    margin-bottom: 5rem;
+    font-size: x-large;
+    color: var(--secondary-color)
+}
+
+#hero-subtitle {
+    margin: 3rem;
+    font-size: 1.7rem;
+    color: var(--color-white);
+    font-family: Helvetica, sans-serif;
+}
+.hero-cta-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+/* CTA Buttons Container & Initial Styling */
+#hero-cta {
+    display: flex;
+    gap: 1.25rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.cta-btn {
+    background-color: var(--secondary-color);
+    color: var(--color-black);
+    font-family: Helvetica, sans-serif;
+    font-weight: bold;
+    padding: 0.85rem 2rem;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.cta-btn:hover {
+    background-color: var(--secondary-color-accent-light);
+    transform: translateY(-2px);
 }
 
 hr {
@@ -120,7 +199,7 @@ hr {
     padding: 3rem 2rem;
 }
 .footer-heading{
-    font-family: 'Graduate', 'CarterOne';
+    font-family: 'Graduate';
     color: var(--secondary-color);
     font-weight: bold;
     font-size: 2rem;
@@ -139,6 +218,9 @@ hr {
     color: var(--color-white);
     font-size: 1.2rem;
     text-decoration: none;
+    max-width: 100%;
+    height: auto;
+    text-wrap: wrap;
 }
 .footer-links a:hover{
     color:var(--primary-color-accent-light);
