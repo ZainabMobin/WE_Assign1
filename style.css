@@ -2,6 +2,7 @@
     --primary-color: rgb(79, 0, 79);
     --primary-color-accent-medium: rgb(119, 20, 117);
     --primary-color-accent-light: rgb(210, 62, 207);
+    --primary-color-accent-lighter: rgb(210, 117, 208);
     --secondary-color: rgb(251, 199, 135);
     --secondary-color-accent-light: antiquewhite;
     --color-white: white;
@@ -38,7 +39,7 @@ body{
 }
 
 #navbar-wrapper{
-    background: linear-gradient(0, var(--secondary-color-accent-light), var(--secondary-color));
+    background-color: var(--secondary-color);
     margin: 0;
 }
 #navbar-container{
@@ -91,7 +92,7 @@ body{
     transition: transform 0.1s ease, color 0.2s ease;
 }
 #navbar-wrapper a:hover{
-    color:rgb(196, 53, 194);
+    color: var(--primary-color-accent-light);
     text-decoration: underline;
 }
 
@@ -105,15 +106,12 @@ body{
     justify-content: center;
     text-align: center;
     background: linear-gradient( var(--primary-color), var(--primary-color-accent-medium), var(--primary-color-accent-light) );
-    color: var(--white-color, #fff);
-}
-#hero-content {
-    /* margin: 0 auto; */
+    color: var(--color-white);
 }
 
 .hero-badge {
-    font-family: 'Graduate', serif;
-    color: #fff;
+    font-family: 'Graduate', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    color: var(--color-white);
     text-transform: uppercase;
     font-size: clamp(2.5rem, 6vw, 10rem);
     font-weight: bold;
@@ -122,15 +120,12 @@ body{
     margin-top: 4rem;
     margin-bottom: 1.5rem;
     display: inline-block;
+    padding: 2.5rem 2.5rem;
+    border-radius: 10px;
+    background-color: color-mix(in srgb, var(--secondary-color) 15%, transparent);
+    border: 1px solid color-mix(in srgb, var(--secondary-color-accent-light) 35%, transparent);
 }
 
-#hero-wrapper h1 {
-    font-family: 'JetBrainsMono', monospace, consolas, serif;
-    margin: 4rem;
-    margin-bottom: 5rem;
-    font-size: x-large;
-    color: var(--secondary-color)
-}
 
 #hero-subtitle {
     margin: 3rem;
@@ -144,7 +139,6 @@ body{
     justify-content: center;
 }
 
-/* CTA Buttons Container & Initial Styling */
 #hero-cta {
     display: flex;
     gap: 1.25rem;
@@ -168,11 +162,71 @@ body{
     transform: translateY(-2px);
 }
 
-hr {
-    border: none;
-    border-top: 1px dashed var(--primary-color); /* blend into the background */
-    margin: 0;
-    padding: 0;
+#process-wrapper{
+    display: flex;
+    flex-direction: column;
+    margin: 4rem 0;
+    margin-bottom: 7rem;
+}
+.process-section-title {
+    font-family: 'Graduate', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--primary-color);
+
+    margin: 6rem 4rem;
+    margin-bottom: 3rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 3px solid var(--primary-color);
+    align-self: flex-start;
+}
+
+.process-stage-container{
+    display: flex;
+    flex-direction: row;
+    margin: 2rem 20rem;
+    margin-bottom: 2.25rem;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-radius: 10px;
+    background-color: color-mix(in srgb, var(--primary-color-accent-light) 7%, transparent);
+    border: 1px solid color-mix(in srgb, var(--primary-color-accent-light) 22%, transparent);
+}
+
+.process-stage-num{
+    background-color: var(--secondary-color); 
+    font-family: 'JetBrainsMono', monospace, consolas, serif;
+    font-weight: bold;
+    font-size: xx-large;
+    padding: 4rem;
+    border-radius: 50%;
+    border-style: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    width: .1rem;
+    height: .1rem;
+    box-sizing: border-box; /* border-box cus changing font size (inner content) has changed the figure of the div */
+}
+
+.process-stage-content{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1rem;
+    padding-left: 4rem;
+}
+.process-stage-heading{
+    font-family: 'Graduate', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: xx-large;
+}
+.process-stage-desc{
+    font-family: Helvetica, sans-serif;
+    font-size: x-large;
 }
 #footer-wrapper{
     margin: 0;
@@ -199,7 +253,7 @@ hr {
     padding: 3rem 2rem;
 }
 .footer-heading{
-    font-family: 'Graduate';
+    font-family: 'Graduate', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
     color: var(--secondary-color);
     font-weight: bold;
     font-size: 2rem;
@@ -233,20 +287,37 @@ hr {
 }
 
 #footer-detailed-wrapper{
+    margin-top: 4rem;
+    padding: 8rem 0;
+    padding-bottom: 8rem;
+    width: 100%;
+    min-height: 60vh;
     display: flex;
     flex-direction: column;
-}
-#footer-logo{
     background: linear-gradient(0, var(--primary-color), var(--primary-color-accent-medium), var(--primary-color-accent-light));
+    border-top: 6px solid var(--primary-color);
+    border-bottom: 4px solid var(--secondary-color);
+}
+
+#footer-detailed-wrapper {
+    padding-bottom: 8rem;
+}
+#slogan{
+    margin-left: 5rem;
+    padding-top: 4rem;
+    width: fit-content;
+    color:var(--secondary-color-accent-light);
+    font-family: 'JetBrainsMono', monospace, consolas, serif;
+    font-weight: bold;
+    font-size: 2rem;
+    border-bottom: 2px solid var(--secondary-color-accent-light);
+}
+
+#footer-logo{
     font-family: 'BlackOps', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
     font-size: clamp(3rem, 23vw - 1rem, 100vw);
     color:var(--secondary-color);
     text-align: center;
-}
-
-/* temp class styling to be determined! */
-.temp{
-    color: azure;
 }
 
 /* tablet screen */

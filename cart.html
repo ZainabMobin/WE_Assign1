@@ -3,36 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cart</title>
+    <title>Catalogue</title>
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
     
     <nav id="navbar-wrapper">
-        <div id="navbar-logo">Logo</div>
-        <ul id="navbar-links">
-            <li><a href="./index.html">Home</a></li>
-            <li><a href="./index.html#process-wrapper">Services</a></li>
-            <li><a href="./catalogue.html">Catalouge</a></li>
-            <li><a href="#footer-links">Contact</a></li>
-        </ul>
-        <div id="cart">
-            <a href="#">Cart</a>
+        <div id="navbar-container">
+            <div id="navbar-logo">GearRig</div>
+            <ul id="navbar-links">
+                <li><a href="./index.html">HOME</a></li>
+                <li><a href="#process-wrapper">SERVICES</a></li>
+                <li><a href="./catalogue.html">CATALOGUE</a></li>
+                <li><a href="./index.html#contact">CONTACT</a></li>
+                <li><a href="#">CART</a></li>
+            </ul>
         </div>
     </nav>
-
+    
     <div id="footer-wrapper">
-        <div id="footer-links">
-            <div id="footer-links-about"> About
-                <a href="./index.html#process-wrapper">Process Walkthrough</a>
-                <a href="./index.html#browse-wrapper">Browse Equipment</a>
+        <div class="footer-grid">
+            <div class="footer-grid-cell"> 
+                <div class="footer-heading">ABOUT</div>
+                <div class="footer-links">
+                    <a href="./index.html/#process-wrapper">Process Walkthrough</a>
+                    <a href="#">Browse Equipment</a>
+                </div>
             </div>
-            <div id="footer-links-contact"> Reach Out
-                <a href="./contact.html">Contact Us</a>
+
+            <div class="footer-grid-cell"> 
+                <div class="footer-heading" id="contact">REACH OUT</div>
+                <div class="footer-links">
+                    <a href="mail.to" target="_blank">Mail: gear.rig@email.com</a>
+                    <a href="www.gearrig.com" target="_blank">Website: gearrig.com</a>
+                    <br>
+                    <a href="https://maps.app.goo.gl/MR4v8sxm2oeKmf226" target="_blank">Pickup point: Lobby, SEECS UG Block, NUST H12</a>
+                </div>
             </div>
+
         </div>
 
-        &copy; Things 2026 - All Rights Reserved
+        <div id="footer-copy">&copy; 2026 GearRig, All Rights Reserved</div>
     </div>
 
     <script src="./script.js"></script>
