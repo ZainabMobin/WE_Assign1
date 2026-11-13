@@ -6,11 +6,13 @@
     <title>Catalogue</title>
     <link rel="stylesheet" href="./style.css">
 </head>
-<body>
+<body onLoad="initializeCards()">
     
     <nav id="navbar-wrapper">
         <div id="navbar-container">
-            <div id="navbar-logo">GearRig</div>
+            <div id="navbar-logo">
+                <a href="./index.html">GearRig</a>
+            </div>
             <ul id="navbar-links">
                 <li><a href="./index.html">HOME</a></li>
                 <li><a href="./index.html#process-wrapper">SERVICES</a></li>
@@ -21,6 +23,9 @@
         </div>
     </nav>
 
+    <div class="product-wrapper">
+        <div class="product-grid"></div>
+    </div>
     
     <hr>
     <div id="footer-wrapper">
