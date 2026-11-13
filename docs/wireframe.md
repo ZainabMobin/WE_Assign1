@@ -5,10 +5,10 @@
 
 ## Landing Page
 
-![Landing](./img/landing.png)
+![Landing](./img/wireframe-landing.png)
 
 ## Catalogue
-![Catalogue](./img/catalogue.png)
+![Catalogue](./img/wireframe-catalogue.png)
 
 ## Cart & Checkout
-![Cart & checkout](./img/cart.png)
+![Cart & checkout](./img/wireframe-cart.png)
