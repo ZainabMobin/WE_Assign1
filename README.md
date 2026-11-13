@@ -1,68 +1,33 @@
-Assignment documentation has been provided, corresponding to development stages of WDLC
+# GearRig : Event Equipment Checkout for University
 
-Design Note
+A modular, responsive web prototype designed for university event equipment depots. Eliminates stale inventory data, gives item accountability tracking and enforces institutional identification.
 
-Wireframe
+## Setup & Running Instructions
 
-WDLC
+Because this application runs entirely as a client-side frontend prototype using vanilla technologies (`localStorage`), **no backend server, build tool, or package manager (like npm/Node) is required**.
 
-What runs in client side vs server side.
+### Quick Start (Local Execution)
+1. **Clone or Download** this repository to your local machine.
+2. In case of custom assets, ensure folder structure matches the project layout (`./assets/img/`).
+3. Open **`catalogue.html`** or **`index.html`** directly in any modern web browser (Chrome, Firefox, Edge, Safari), OR:
+4. Open the project root folder in **VS Code** and use the **Live Server** extension to launch `catalogue.html`.
 
-## equipment stats:
-Atleast 1 Category MUST, can be more than 1
-Colours may or may not be set
+## Documentation & Links
 
-## Equipment schema:
-```txt
-{Prodid, 
-name, 
-Desc,
-amount-stock, 
-colour,
-Category: [ electronics, staging ] }
-```
+* **[Design Notes & Problem Analysis](./docs/design-note.md)**: Scenario description, pain points and subsequent requirement ellicitation.
+* **[Wireframe Blueprint](./docs/wireframe.md)**: Layout architecture and UI wireframe flows for landing catalogue and cart pages.
+* **[WDLC Documentation Stages](./docs/wdlc.md)**:  Complete lifecycle documentation from Information Gathering to System Design.
 
-## Equipment list:
-Spotlight - 18W golden , staging, electronics, gold
-Flood light - 20W , electronics, white
-Velvet carpet - linen based and crimson,  staging, red
-Speakers - 150db range, no colour, electronics
-microphone - sentisitiviy range or spec, no colour , electronics 
+## Assigned Idea & Core Rules
 
-## Card: 
-Prod image
-Prod name
-Prod desc stats 1line
-Category badges (colour, any categories, small)
-Green + what amount 
-Or gray + out of stock
+* **Assigned Idea:** University Equipment Checkout & Depot Logistics (`GearRig`).
+* **Enforced Business Rules:**
+  * **Institutional Identity:** Checkouts require a verified university email ending strictly with `@nust.edu.pk`.
+  * **Return Constraints:** Return dates are restricted dynamically (from current day up to a maximum of 4 months out).
+  * **Inventory Sync:** Cart quantities cannot exceed available stock; checking out successfully decrements live stock and resets the cart state across pages using `localStorage`.
 
-## Filters (3 set side by side)
-Category: Electronics, Staging, misc
-Colours: none, all, vbgyor bw gold silver
-Status: Available, not available
+## Technical Implementation & Architecture
 
-## Borrow record schema
-```plaintext
-{ Token number, 
-Email, 
-Return time,
-borrows: [ (Prod id, amount borrowed),
-(Prodid, amnt borrowed)] }
-```
-
-## Borrow records 
-6 student records = 6 borrows done already
-
-- aa.bese24seecs@nust.edu.pk : 5th Dec 2026, [(flood light, 2), (spotlight, 1)]
-- bb.bese26seecs@nust.edu.pk : 18th Dec 2026, [ (speaker, 3)]
-- cc.beee23seecs@nust.edu.pk : 4th Jan 2027, [(velvet carpet, 10),(flood light, 3), (spotlight, 4)]
-- dd.beee23seecs@nust.edu.pk : 15th Feb 2027 , [(speaker, 5), (microphone, 4)]
-- ee.bsds25seecs@nust.edu.pk : 28th Nov 2026, [(speaker, 2), (red carpet, 4), - (flood light, 1), (spotlight, 1)]
-
-## Testing:
-- return date: exceeding 4 months, less than 1 hr, past time
-- email: Not valid university email domain checked for student.Nust.edu.pk
-- Amount: Greater than 0, less than eq total stock
-- Borrow list: Nothing in list cart empty. Checkout button disabled. No record generation in js
-
+* **Frontend Stack:** Semantic HTML5, CSS3 (Flexbox/Grid, CSS Variables), and Vanilla JavaScript (ES6).
+* **Client vs. Server:** This application runs 100% in the browser client. All equipment inventory, cart states, and checkout restrictions persist locally using the browser's `localStorage` API without requiring an external backend database.
+* **Responsive Design:** Includes media-query for mobile devices, tablets, and desktop displays.
