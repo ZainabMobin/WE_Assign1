@@ -56,21 +56,21 @@ Theatrical and live-event vocabulary to show importance of pre-planning infrastr
 
 User interface blueprints and feel
 
-### 1. Catalogue Card Layout (`.product-cell`)
+### A. Catalogue Card Layout (`.product-cell`)
 * **Product Image Box:** Clean framed thumbnail container.
 * **Product Name:** Uppercase display typography (`Graduate`).
 * **Specifications:** Single-line clamped text (`JetBrainsMono`).
 * **Category Badges:** Compact pill tags showing colors and categories.
 * **Stock Indicator:** Dynamic status dot with quantity counter (`#22c55e` green for available amounts, `#6b7280` gray for out of stock).
 
-### 2. Catalogue Filters (Triple Set Side-by-Side)
+### B. Catalogue Filters (Triple Set Side-by-Side)
 * **Category:** Electronics, Staging, Misc
 * **Colours:** None, All, VIBGYOR, BW, Gold, Silver
 * **Status:** Available, Not Available
 
 ## Data Modeling & Schemas
 
-### 1. Equipment Schema & Constraints
+### A. Equipment Schema & Constraints
 * **Rules:** At least 1 category is mandatory (can be multiple); color attribute is optional and can be multiple.
 ```json
 {
@@ -92,7 +92,7 @@ Speakers: 150dB peak SPL, dual XLR/TRS input | Stock: 4 | Color: None | Categori
 Microphone: -54dBV/Pa sensitivity | Stock: 9 | Color: None | Categories: Electronics
 ```
 
-### 2. Borrow record schema
+### B. Borrow record schema
 
 A person may borrrow multiple products
 ```json
@@ -116,7 +116,7 @@ cc.beee23seecs@nust.edu.pk : 4th Jan 2027, [(velvet carpet, 10), (flood light, 3
 dd.beee23seecs@nust.edu.pk : 15th Feb 2027, [(speaker, 5), (microphone, 4)]
 ee.bsds25seecs@nust.edu.pk : 28th Nov 2026, [(speaker, 2), (red carpet, 4), (flood light, 1), (spotlight, 1)]
 ```
-### 3. Cart schema
+### C. Cart schema
 
 A current cart has productID with the quantity. The quantity is greater than 0 and less than equal to available stock
 ```json
@@ -125,6 +125,11 @@ A current cart has productID with the quantity. The quantity is greater than 0 a
   amount
 }
 ```
+
+## Entity Relation Diagram
+
+![ERD](./img/erd.png)
+
 # 4. Content Creation
 
 **Name:** GearRig (Responsible & professional Depot to store and obtain quality equipment)
