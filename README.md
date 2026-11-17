@@ -1,6 +1,18 @@
 # GearRig : Event Equipment Checkout for University
 
+<div style="display: flex; justify-content: center">
+
+[![HTML](https://img.shields.io/badge/HTML-%23E34F26.svg?logo=html5&logoColor=white)](#)
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=000)](#)
+[![JSON](https://img.shields.io/badge/JSON-000?logo=json&logoColor=fff)](#)
+[![CSS](https://img.shields.io/badge/CSS-639?logo=css&logoColor=fff)](#)
+
+</div>
+
 A modular, responsive web prototype designed for university event equipment depots. Eliminates stale inventory data, gives item accountability tracking and enforces institutional identification.
+
+## Deployment Links
+[Assignment 1](https://zainabmobin.github.io/WE_Assign1/)
 
 ## Setup & Running Instructions
 
@@ -11,7 +23,7 @@ Because this application runs entirely as a client-side frontend prototype using
 ### Quick Start (Local Execution)
 1. **Clone or Download** this repository to your local machine.
 2. In case of custom assets, ensure folder structure matches the project layout (`./assets/img/`).
-3. Open **`catalogue.html`** or **`index.html`** directly in any modern web browser (Chrome, Firefox, Edge, Safari), OR:
+3. Open `catalogue.html` or `index.html` directly in any modern web browser (Chrome, Firefox, Edge, Safari), OR:
 4. Open the project root folder in **VS Code** and use the **Live Server** extension to launch `catalogue.html`.
 
 ### Project Directory Overview
