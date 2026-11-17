@@ -4,9 +4,9 @@ A modular, responsive web prototype designed for university event equipment depo
 
 ## Setup & Running Instructions
 
-Because this application runs entirely as a client-side frontend prototype using vanilla technologies (`localStorage`), **no backend server, build tool, or package manager (like npm/Node) is required**.
-
-
+**STACK:**
+- PHP 8.5 with PDO and SQLite/MySQL.
+- json api endpoints
 
 ### Quick Start (Local Execution)
 1. **Clone or Download** this repository to your local machine.
@@ -14,33 +14,62 @@ Because this application runs entirely as a client-side frontend prototype using
 3. Open **`catalogue.html`** or **`index.html`** directly in any modern web browser (Chrome, Firefox, Edge, Safari), OR:
 4. Open the project root folder in **VS Code** and use the **Live Server** extension to launch `catalogue.html`.
 
-### Project Directory Overview
+- start/ensure mysql service daemon is running. 
+- init db: insert the script first of all (or can have a backup file for the db)
+- ensure php is installed, start php server
 
-- All md files serve as documentation, present in the `/docs` folder. 
-- `/assets` contains project images and fonts.
-- Contains three linked html pages: `index.html`, `catalogue.html` and `cart.html`
-- Shared css and js files are used among all three html pages.  
+### Project Directory Overview
 
 ```
 .
-├── assets
-│   ├── fonts
-│   └── img
-├── cart.html
-├── catalogue.html
+├── backend
 ├── docs
 │   ├── design-note.md
 │   ├── img
 │   ├── responsive-design.md
 │   ├── wdlc.md
 │   └── wireframe.md
-├── index.html
-├── README.md
-├── script.js
-└── style.css
+├── frontend
+│   ├── assets
+│   ├── cart.html
+│   ├── catalogue.html
+│   ├── index.html
+│   ├── script.js
+│   └── style.css
+└── README.md
 ```
 
+#### Documentation:
+- All md files serve as documentation, present in the `/docs` folder. 
+
+#### Backend:
+
+
+#### Frontend:
+- `/assets` contains project images and fonts.
+- Contains three linked html pages: `index.html`, `catalogue.html` and `cart.html`
+- Shared css and js files are used among all three html pages.  
+
+
+## Assignment 2 deliverables:
+
+**FRONTEND:**
+- Show loading, success, empty and error states without unnecessary page reloads.
+
+**DATABASE:**
+- Mysql schema and seed records
+
+**BACKEND:** 
+- Implement prepared statements for CRUD operations containing user input.
+- Expose at least one JSON endpoint and call it from the browser with Fetch and async/await. 
+- Validate data on the server, encode user-controlled output before displaying HTML
+- Apply session ownership and CSRF protection using the course scaffold where provided.
+- Test at least four cases, including invalid/missing input, a successful update, and an unauthorized or invalid operation. Use browser storage only for a non-sensitive preference.
+
 ## Documentation & Links
+
+* **[ERD](./docs/img/erd.png)**: Database schema and ERD
+* **[ERD](./docs/img/order-state.png)**: FSM for order state changes
 
 * **[Design Notes & Problem Analysis](./docs/design-note.md)**: Scenario description, pain points and subsequent requirement ellicitation.
 * **[Wireframe Blueprint](./docs/wireframe.md)**: Layout architecture and UI wireframe flows for landing catalogue and cart pages.
@@ -49,10 +78,7 @@ Because this application runs entirely as a client-side frontend prototype using
 ## Assigned Idea & Core Rules
 
 * **Assigned Idea:** University Equipment Checkout & Depot Logistics (`GearRig`).
-* **Enforced Business Rules:**
-  * **Institutional Identity:** Checkouts require a verified university email ending strictly with `@nust.edu.pk`.
-  * **Return Constraints:** Return dates are restricted dynamically (from current day up to a maximum of 4 months out).
-  * **Inventory Sync:** Cart quantities cannot exceed available stock; checking out successfully decrements live stock and resets the cart state across pages using `localStorage`.
+* **Enforced Business Rules: See **[System Design Note & Business Rules](./docs/design-note.md)**.
 
 ## Technical Implementation & Architecture
 
