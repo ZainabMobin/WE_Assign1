@@ -30,14 +30,23 @@ The Media Services office at a university lends out event equipment, projectors,
 
 # Business Rules
 
+### Product
+
+- Products can have 0 colours (inferred as none), and may have more than 1 colour (mant to many relationship).
+- Products can have no category (inferred as misc), and may fall in more than 1 categories (many to many relationship)
+
 ### Borrower
 * **Institutional Verification:** Checkout requires a valid `@nust.edu.pk` email address; non-institutional domains are rejected on the server.
 * **Booking Window:** Return `due_date` must fall strictly between the current date (`TODAY`) and `TODAY + 4 months`.
 * **Cart & Quantity Caps:** Empty carts cannot be submitted; requested quantities cannot exceed current available stock.
 * **Stock Reservation:** Submitting an order decrements stock and places it in `PENDING` status for gear reservation.
-* **Cancellations:** BOrrowers cannot cancel orders online once placed; cancellations must be requested in person at the depot counter.
+* **Cancellations:** Borrowers cannot cancel orders online once placed; cancellations must be requested in person at the depot counter.
+* **Order Request (`PENDING`):** upon checkout, borrower verifies their university email by confirmation code.
 
 ### Depot Staff (Operator)
+
+Staff ID is logged in all stated of order processing: `pending to confirmed`, `partially returned` and `returned`.
+
 * **Authentication & Access:** Staff must log in with verified credentials to access handover, return, and cancellation endpoints.
 
 * **Order Handover (`PENDING` $\rightarrow$ `CONFIRMED`):** Staff verifies borrower in person, inspects gear and logs condition for each.
