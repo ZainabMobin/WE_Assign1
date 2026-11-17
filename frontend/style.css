@@ -255,7 +255,8 @@ body{
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.product-cell:hover {
+/* a product cell that does not have class 'disable' will float upwards on hover */
+.product-cell:not(.disable):hover {
     transform: translateY(-4px);
 }
 
@@ -387,7 +388,7 @@ body{
 
 .prod-action-btn:disabled {
     background-color: rgba(107, 114, 128, 0.4);
-    cursor: not-allowed;
+    cursor: auto;
     transform: none;
 }
 

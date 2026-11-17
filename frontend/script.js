@@ -71,6 +71,8 @@ function initializeCatalogue() {
         const cell = document.createElement('div');
         cell.className = 'product-cell';
 
+        if (!isAvailable) cell.classList.add('disable');
+
         cell.innerHTML = `
             <div class="prod-img-box">
                 <img src="${item.image}" alt="${item.name}">
