@@ -10,9 +10,13 @@ A modular, responsive web prototype designed for university event equipment depo
 
 ### Quick Start (Local Execution)
 1. **Clone or Download** this repository to your local machine.
-2. In case of custom assets, ensure folder structure matches the project layout (`./assets/img/`).
-3. Open **`catalogue.html`** or **`index.html`** directly in any modern web browser (Chrome, Firefox, Edge, Safari), OR:
-4. Open the project root folder in **VS Code** and use the **Live Server** extension to launch `catalogue.html`.
+2. In case of custom assets, ensure folder structure matches the project layout (`./assets/img/`) and relevant naming scheme.
+3. Start php server on port 8000:
+
+```bash
+php -S 127.0.0.1:8000
+```
+4. View frontend on: [http://127.0.0.1:8000/frontend/index.html](http://127.0.0.1:8000/frontend/index.html)
 
 - start/ensure mysql service daemon is running. 
 - init db: insert the script first of all (or can have a backup file for the db)
@@ -23,6 +27,9 @@ A modular, responsive web prototype designed for university event equipment depo
 ```
 .
 ├── backend
+│   ├── api
+│   │   └── image.php
+│   └── schema.sql
 ├── docs
 │   ├── design-note.md
 │   ├── img
@@ -31,6 +38,8 @@ A modular, responsive web prototype designed for university event equipment depo
 │   └── wireframe.md
 ├── frontend
 │   ├── assets
+│   │   ├── fonts
+│   │   └── img
 │   ├── cart.html
 │   ├── catalogue.html
 │   ├── index.html
@@ -52,6 +61,15 @@ A modular, responsive web prototype designed for university event equipment depo
 
 
 ## Assignment 2 deliverables:
+
+backend php, db connection check
+try catch statements
+layered backend statement
+email service for order verification
+pagination of results
+filtering of data
+Add email confirmation for initial student email provided, code must match and expiry is 10 mins.
+
 
 **FRONTEND:**
 - Show loading, success, empty and error states without unnecessary page reloads.

@@ -7,7 +7,6 @@ const defaultEquipment = [
         amountStock: 12,
         colour: "gold",
         categories: ["electronics", "staging"],
-        image: "./assets/img/spotlight.jpeg"
     },
     {
         prodId: "EQ-002",
@@ -16,7 +15,6 @@ const defaultEquipment = [
         amountStock: 0,
         colour: "white",
         categories: ["electronics"],
-        image: "./assets/img/floodlight.jpeg"
     },
     {
         prodId: "EQ-003",
@@ -25,7 +23,6 @@ const defaultEquipment = [
         amountStock: 6,
         colour: "red",
         categories: ["staging"],
-        image: "./assets/img/carpet.png"
     },
     {
         prodId: "EQ-004",
@@ -34,7 +31,6 @@ const defaultEquipment = [
         amountStock: 4,
         colour: "none",
         categories: ["electronics"],
-        image: "./assets/img/speakers.png"
     },
     {
         prodId: "EQ-005",
@@ -43,13 +39,16 @@ const defaultEquipment = [
         amountStock: 9,
         colour: "none",
         categories: ["electronics"],
-        image: "./assets/img/microphone.jpg"
     }
 ];
 
 // Load equipment data and cart from localStorage
 let equipmentData = JSON.parse(localStorage.getItem('gearRigEquipment')) || defaultEquipment;
 let cart = JSON.parse(localStorage.getItem('gearRigCart')) || [];
+
+const IMAGE_ENDPOINT = '../backend/api/image.php';
+const FALLBACK_IMG_SRC = 'assets/img/fallback.jpg';
+
 
 
 // should fetch logged user id specific data when refreshed
@@ -98,7 +97,13 @@ function initializeCatalogue() {
         const prodImgBox = document.createElement('div');
         prodImgBox.classList.add('prod-img-box');
         const img = document.createElement('img');
-        img.src = item.image;
+       
+        fetchProductImageSrc(item.prodId).
+            then((resolvedSrc) => {
+                console.log(`Frontend got ${resolvedSrc} for ID: ${item.prodId}`)
+                img.src = resolvedSrc; 
+        });
+
         img.alt = item.name;
         prodImgBox.appendChild(img);
 
@@ -225,9 +230,13 @@ function initializeCart() {
         cartItemImgBox.classList.add('cart-item-img-box');
 
         const cartItemImg = document.createElement('img');
-        cartItemImg.src = product.image;
+        fetchProductImageSrc(cartItem.prodId)
+            .then((resolvedSrc) => {
+                console.log(`Frontend got ${resolvedSrc} for ID: ${cartItem.prodId}`)
+                cartItemImg.src = resolvedSrc; 
+            });
         cartItemImg.alt = product.name;
-
+        
         cartItemImgBox.appendChild(cartItemImg);
 
 
@@ -378,4 +387,22 @@ function setupCheckoutHandler() {
         initializeCart();
         freshForm.reset();
     });
+}
+
+// get valid src string from php endpoint,  
+
+async function fetchProductImageSrc(prodId) {
+    try {
+        const url = `${IMAGE_ENDPOINT}?prodId=${encodeURIComponent(String(prodId ?? ''))}`;
+        const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+        const data = await res.json();
+
+        if (!res.ok || !data.ok || typeof data.src !== 'string') {
+            return FALLBACK_IMG_SRC;
+        }
+        return data.src;
+    } catch (err) {
+        console.error('Image lookup failed for', prodId, err);
+        return FALLBACK_IMG_SRC;
+    }
 }
