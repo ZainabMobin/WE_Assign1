@@ -70,62 +70,13 @@ User interface blueprints and feel
 
 ## Data Modeling & Schemas
 
-### A. Equipment Schema & Constraints
-**Rules:** At least 1 category is mandatory (can be multiple); color attribute is optional and can be multiple.
-```json
-{
-  prodId, 
-  name, 
-  desc, 
-  amountStock, 
-  colour: [], 
-  categories: [ electronics, staging ]
-}
-```
-#### Initial Equipment Inventory Seed
-
-- Spotlight: 18W golden beam, adjustable mount | Stock: 12 | Color: Gold | Categories: Staging, Electronics
-- Flood Light: 20W wide-angle LED, IP65 rated | Stock: 0 | Color: White | Categories: Electronics
-- Velvet Carpet: Linen-backed crimson runner, 10m roll | Stock: 6 | Color: Red | Categories: Staging
-- Speakers: 150dB peak SPL, dual XLR/TRS input | Stock: 4 | Color: None | Categories: Electronics
-- Microphone: -54dBV/Pa sensitivity | Stock: 9 | Color: None | Categories: Electronics
-
-### B. Borrow record schema
-
-A person may borrrow multiple products
-```json
-{ 
-  tokenNumber, 
-  email, 
-  returnTime,
-  borrows: [ 
-    (prodId, amountBorrowed),
-    (prodId, amountBorrowed) 
-  ] 
-}
-```
-
-#### Initial Student Borrow Seeds
-
-- aa.bese24seecs@nust.edu.pk : 5th Dec 2026, [(flood light, 2), (spotlight, 1)]
-- bb.bese26seecs@nust.edu.pk : 18th Dec 2026, [(speaker, 3)]
-- cc.beee23seecs@nust.edu.pk : 4th Jan 2027, [(velvet carpet, 10), (flood light, 3), (spotlight, 4)]
-- dd.beee23seecs@nust.edu.pk : 15th Feb 2027, [(speaker, 5), (microphone, 4)]
-- ee.bsds25seecs@nust.edu.pk : 28th Nov 2026, [(speaker, 2), (red carpet, 4), (flood light, 1), (spotlight, 1)]
-
-### C. Cart schema
-
-A current cart has productID with the quantity. The quantity is greater than 0 and less than equal to available stock
-```json
-{ 
-  prodID,
-  amount
-}
-```
-
-## Entity Relation Diagram
+### Entity Relation Diagram
 
 ![ERD](./img/erd.png)
+
+### Equipment Lifecycle state management
+
+![FSM](./img/order-state.png)
 
 # 4. Content Creation
 

@@ -51,6 +51,8 @@ const defaultEquipment = [
 let equipmentData = JSON.parse(localStorage.getItem('gearRigEquipment')) || defaultEquipment;
 let cart = JSON.parse(localStorage.getItem('gearRigCart')) || [];
 
+
+// should fetch logged user id specific data when refreshed
 function initializeCatalogue() {
     const gridContainer = document.querySelector('.product-grid');
     if (!gridContainer) return;
@@ -59,39 +61,92 @@ function initializeCatalogue() {
 
     equipmentData.forEach(item => {
         const isAvailable = item.amountStock > 0;
-        
-        let badgesHTML = item.categories
-            .map(cat => `<span class="badge badge-cat">${cat}</span>`)
-            .join('');
 
-        if (item.colour && item.colour.toLowerCase() !== 'none') {
-            badgesHTML += `<span class="badge badge-color">${item.colour}</span>`;
+        const badgeList = document.createElement('div');
+        badgeList.classList.add('prod-badges');
+
+        if (Array.isArray(item.categories)) {
+            item.categories.forEach(cat => {
+                const badge = document.createElement('span');
+                badge.classList.add('badge', 'badge-cat');
+                badge.textContent = cat;
+                badgeList.appendChild(badge);
+            });
         }
 
+        // Supports either a single colour string or an array of colours
+        const colours = Array.isArray(item.colour) ? item.colour : 
+                ( item.colour && item.colour.toLowerCase() !== 'none' ? [item.colour] : [] );
+
+        colours.forEach(col => {
+            if (col && String(col).toLowerCase() !== 'none') {
+                const badge = document.createElement('span');
+                badge.classList.add('badge', 'badge-color');
+                badge.textContent = col;
+                badgeList.appendChild(badge);
+            }
+        });
+
+
+        // cell for each product
         const cell = document.createElement('div');
         cell.className = 'product-cell';
-
         if (!isAvailable) cell.classList.add('disable');
 
-        cell.innerHTML = `
-            <div class="prod-img-box">
-                <img src="${item.image}" alt="${item.name}">
-            </div>
-            <div class="prod-info">
-                <h3 class="prod-name">${item.name}</h3>
-                <p class="prod-desc">${item.desc}</p>
-                <div class="prod-badges">
-                    ${badgesHTML}
-                </div>
-            </div>
-            <div class="prod-status ${isAvailable ? 'status-available' : 'status-unavailable'}">
-                <span class="status-dot"></span>
-                <span class="status-text">${isAvailable ? `${item.amountStock} in stock` : 'Out of stock'}</span>
-            </div>
-            <button class="prod-action-btn" data-id="${item.prodId}" ${!isAvailable ? 'disabled' : ''}>
-                ${isAvailable ? 'Add to Cart' : 'Unavailable'}
-            </button>
-        `;
+
+        // box to hold prod image
+        const prodImgBox = document.createElement('div');
+        prodImgBox.classList.add('prod-img-box');
+        const img = document.createElement('img');
+        img.src = item.image;
+        img.alt = item.name;
+        prodImgBox.appendChild(img);
+
+
+        //prodInfo with name, desc and badges
+        const prodInfo = document.createElement('div');
+        prodInfo.classList.add('prod-info');
+
+        const prodName = document.createElement('h3');
+        prodName.classList.add('prod-name');
+        prodName.textContent = item.name;
+
+        const prodDesc = document.createElement('p');
+        prodDesc.classList.add('prod-desc');
+        prodDesc.textContent = item.desc;
+
+        prodInfo.appendChild(prodName);
+        prodInfo.appendChild(prodDesc);
+        prodInfo.appendChild(badgeList);
+
+
+        // holds availability status 
+        const prodStatus = document.createElement('div');
+        prodStatus.classList.add('prod-status', isAvailable ? 'status-available' : 'status-unavailable');
+
+        const statusDot = document.createElement('span');
+        statusDot.classList.add('status-dot');
+
+        const statusText = document.createElement('span');
+        statusText.classList.add('status-text');
+        statusText.textContent = isAvailable ? `${item.amountStock} in stock` : 'Out of stock';
+
+        prodStatus.appendChild(statusDot);
+        prodStatus.appendChild(statusText);
+
+
+        // add to cart button
+        const prodActionBtn = document.createElement('button');
+        prodActionBtn.classList.add('prod-action-btn');
+        prodActionBtn.dataset.id = item.prodId;
+        prodActionBtn.disabled = !isAvailable;
+        prodActionBtn.textContent = isAvailable ? 'Add to Cart' : 'Unavailable';
+
+
+        cell.appendChild(prodImgBox);
+        cell.appendChild(prodInfo);
+        cell.appendChild(prodStatus);
+        cell.appendChild(prodActionBtn);
 
         gridContainer.appendChild(cell);
     });
@@ -100,11 +155,11 @@ function initializeCatalogue() {
     document.querySelectorAll('.prod-action-btn').forEach(button => {
         button.addEventListener('click', (e) => {
             const prodId = e.target.getAttribute('data-id');
-            const product = equipmentData.find(p => p.prodId === prodId);
+            const product = equipmentData.find(p => String(p.prodId) === String(prodId));
 
             if (!product) return;
 
-            const existing = cart.find(item => item.prodId === prodId);
+            const existing = cart.find(item => String(item.prodId) === String(prodId));
             if (existing) {
                 if (existing.quantity < product.amountStock) {
                     existing.quantity += 1;
@@ -113,19 +168,19 @@ function initializeCatalogue() {
                     alert('Cannot add more than available stock.');
                 }
             } else {
-                cart.push({ prodId: prodId, quantity: 1 });
+                cart.push({ prodId: product.prodId, quantity: 1 });
                 alert('Item added to cart!');
             }
 
-            // Save updated cart to localStorage
             localStorage.setItem('gearRigCart', JSON.stringify(cart));
         });
     });
 }
 
+// should fetch data from databse upon reresh
 function initializeCart() {
     const cartGrid = document.querySelector('.cart-grid');
-    if (!cartGrid) return; 
+    if (!cartGrid) return;
 
     cartGrid.innerHTML = '';
 
@@ -147,15 +202,16 @@ function initializeCart() {
     }
 
     if (cart.length === 0) {
-        cartGrid.innerHTML = `<div class="empty-cart">
-                                Your cart is empty. Browse the Catalogue to add gear.
-                            </div>`;
+        const emptyMsg = document.createElement('div');
+        emptyMsg.classList.add('empty-cart');
+        emptyMsg.textContent = 'Your cart is empty. Browse the Catalogue to add gear.';
+        cartGrid.appendChild(emptyMsg);
         return;
     }
 
     cart.forEach(cartItem => {
-        const product = equipmentData.find(eq => eq.prodId === cartItem.prodId);
-        if (!product) return; 
+        const product = equipmentData.find(eq => String(eq.prodId) === String(cartItem.prodId));
+        if (!product) return;
 
         // Disable '+' button if cart quantity equals or exceeds available stock
         const isMaxStock = cartItem.quantity >= product.amountStock;
@@ -163,21 +219,73 @@ function initializeCart() {
         const cartCell = document.createElement('div');
         cartCell.className = 'cart-cell-item';
 
-        cartCell.innerHTML = `
-            <div class="cart-item-img-box">
-                <img src="${product.image}" alt="${product.name}">
-            </div>
-            <div class="cart-item-info">
-                <h3 class="cart-item-name">${product.name}</h3>
-                <span class="cart-item-spec">${product.desc}</span>
-            </div>
-            <div class="cart-item-controls">
-                <button class="qty-btn qty-dec" data-id="${product.prodId}">-</button>
-                <span class="qty-display">${cartItem.quantity}</span>
-                <button class="qty-btn qty-inc" data-id="${product.prodId}" ${isMaxStock ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>+</button>
-            </div>
-            <button class="cart-remove-btn" data-id="${product.prodId}">×</button>
-        `;
+
+        // image holder
+        const cartItemImgBox = document.createElement('div');
+        cartItemImgBox.classList.add('cart-item-img-box');
+
+        const cartItemImg = document.createElement('img');
+        cartItemImg.src = product.image;
+        cartItemImg.alt = product.name;
+
+        cartItemImgBox.appendChild(cartItemImg);
+
+
+        // info holds name and desc
+        const cartItemInfo = document.createElement('div');
+        cartItemInfo.classList.add('cart-item-info');
+
+        const cartItemName = document.createElement('h3');
+        cartItemName.classList.add('cart-item-name');
+        cartItemName.textContent = product.name;
+
+        const cartItemDesc = document.createElement('span');
+        cartItemDesc.classList.add('cart-item-spec');
+        cartItemDesc.textContent = product.desc;
+
+        cartItemInfo.appendChild(cartItemName);
+        cartItemInfo.appendChild(cartItemDesc);
+
+
+        // controls -, amount and + btns
+        const cartItemControl = document.createElement('div');
+        cartItemControl.classList.add('cart-item-controls');
+
+        const minusBtn = document.createElement('button');
+        minusBtn.classList.add('qty-btn', 'qty-dec');
+        minusBtn.dataset.id = product.prodId;
+        minusBtn.textContent = '-';
+
+        const amountDisplay = document.createElement('span');
+        amountDisplay.classList.add('qty-display');
+        amountDisplay.textContent = cartItem.quantity;
+
+        const plusBtn = document.createElement('button');
+        plusBtn.classList.add('qty-btn', 'qty-inc');
+        plusBtn.dataset.id = product.prodId;
+        plusBtn.textContent = '+';
+
+        if (isMaxStock) {
+            plusBtn.disabled = true;
+            plusBtn.style.opacity = '0.4';
+            plusBtn.style.cursor = 'not-allowed';
+        }
+
+        cartItemControl.appendChild(minusBtn);
+        cartItemControl.appendChild(amountDisplay);
+        cartItemControl.appendChild(plusBtn);
+
+
+        // Remove from cart button
+        const cartRemoveBtn = document.createElement('button');
+        cartRemoveBtn.classList.add('cart-remove-btn');
+        cartRemoveBtn.dataset.id = product.prodId;
+        cartRemoveBtn.textContent = '×';
+
+        cartCell.appendChild(cartItemImgBox);
+        cartCell.appendChild(cartItemInfo);
+        cartCell.appendChild(cartItemControl);
+        cartCell.appendChild(cartRemoveBtn);
 
         cartGrid.appendChild(cartCell);
     });
