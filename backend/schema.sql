@@ -6,7 +6,8 @@ USE gearrig_db;
 -- 1. USERS
 CREATE TABLE user (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(100) NOT NULL UNIQUE
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL
 );
 
 -- 2. STAFF
@@ -147,17 +148,17 @@ INSERT INTO product_colour (prod_id, colour_id) VALUES
 
 -- Staff Accounts
 INSERT INTO staff (staff_id, email, password_hash) VALUES
-    (1, 'tariq.depot@nust.edu.pk', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
-    (2, 'ayesha.depot@nust.edu.pk', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
+    (1, 'tariq.depot@nust.edu.pk', '$2y$10$UOQkVNj3/xvYedU9wZGXTeCoK6MmR7WTux62oqbQc8RcI9jy3gtXK'), -- Staff1
+    (2, 'ayesha.depot@nust.edu.pk', '$2y$10$rex0wbPWCns5CWhUlYdUDuJXloenKptYppf5zZHIFKAYcxQnco0Zm'); -- Staff2
 
 -- Student Users
-INSERT INTO user (user_id, email) VALUES
-    (1, 'aa.bese24seecs@nust.edu.pk'),
-    (2, 'bb.bese26seecs@nust.edu.pk'),
-    (3, 'cc.beee23seecs@nust.edu.pk'),
-    (4, 'dd.beee23seecs@nust.edu.pk'),
-    (5, 'ee.bsds25seecs@nust.edu.pk'),
-    (6, 'ff.bese24seecs@nust.edu.pk');
+INSERT INTO user (user_id, email,password_hash) VALUES
+    (1, 'aa.bese24seecs@nust.edu.pk', '$2y$10$44fB0j0NvvrW9H5lreuZZODHJ9MiBzKVI6Amu4JV2/hFoTzWnHUCu'), -- Student1
+    (2, 'bb.bese26seecs@nust.edu.pk', '$2y$10$5stUGVL7NRM6RO.JMnlQ7OxYREMA5mIM4F.8Lga69n6Nonhtsf/9G'), -- Student2
+    (3, 'cc.beee23seecs@nust.edu.pk', '$2y$10$BCW8HycHpGLLxc..vlc.wuzV1ioJ18golMbYzg5Wq27tl83wE2ULa'), -- Student3
+    (4, 'dd.beee23seecs@nust.edu.pk', '$2y$10$OJ7/oGx9YDHLkG.Wp9b7Bu7yFTGQ.ULThqFAttnlln2CNL4CxnLa2'), -- Student4 
+    (5, 'ee.bsds25seecs@nust.edu.pk', '$2y$10$3aXfca0kpoZklURaJizcW.sNiXkvcWYx3tDOqcpRAhvTqJzbaM/zK'), -- Student5
+    (6, 'ff.bese24seecs@nust.edu.pk', '$2y$10$rFbA34rOpyYeCbmWRUkWDuN6X.bUQtO.UCqYeCgA0efl0FG/QJr6G'); -- Student6
 
 -- Orders (Using issue_staff_id)
 INSERT INTO borrow_order (order_id, user_id, issue_staff_id, status, order_date, due_date) VALUES
