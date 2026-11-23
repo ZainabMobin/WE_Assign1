@@ -1,65 +1,31 @@
-// fallback if localStorage is empty
-const defaultEquipment = [
-    {
-        prodId: "EQ-001",
-        name: "Spotlight",
-        desc: "18W golden beam, adjustable mount",
-        amountStock: 12,
-        colour: "gold",
-        categories: ["electronics", "staging"],
-    },
-    {
-        prodId: "EQ-002",
-        name: "Flood Light",
-        desc: "20W wide-angle LED, IP65 rated",
-        amountStock: 0,
-        colour: "white",
-        categories: ["electronics"],
-    },
-    {
-        prodId: "EQ-003",
-        name: "Velvet Carpet",
-        desc: "Linen-backed crimson runner, 10m roll",
-        amountStock: 6,
-        colour: "red",
-        categories: ["staging"],
-    },
-    {
-        prodId: "EQ-004",
-        name: "Speakers",
-        desc: "150dB peak SPL, dual XLR/TRS input",
-        amountStock: 4,
-        colour: "none",
-        categories: ["electronics"],
-    },
-    {
-        prodId: "EQ-005",
-        name: "Microphone",
-        desc: "-54dBV/Pa sensitivity",
-        amountStock: 9,
-        colour: "none",
-        categories: ["electronics"],
-    }
-];
 
 // Load equipment data and cart from localStorage
-let equipmentData = JSON.parse(localStorage.getItem('gearRigEquipment')) || defaultEquipment;
 let cart = JSON.parse(localStorage.getItem('gearRigCart')) || [];
 
 const IMAGE_ENDPOINT = '../backend/api/image.php';
 const FALLBACK_IMG_SRC = 'assets/img/fallback.jpg';
+let equipmentData = [];
+
+// placeholder for filters
+let filters = "";
 
 
+/**
+ * 
+ * populate product catalogue
+ */
+async function initializeCatalogue() {
 
-// should fetch logged user id specific data when refreshed
-function initializeCatalogue() {
     const gridContainer = document.querySelector('.product-grid');
     if (!gridContainer) return;
 
     gridContainer.innerHTML = '';
 
+    const fetchedProducts = await fetchFilteredProducts(filters);
+    equipmentData = Array.isArray(fetchedProducts) ? fetchedProducts : [];
+    
     equipmentData.forEach(item => {
-        const isAvailable = item.amountStock > 0;
+        const isAvailable = item.amount_stock > 0;
 
         const badgeList = document.createElement('div');
         badgeList.classList.add('prod-badges');
@@ -74,8 +40,8 @@ function initializeCatalogue() {
         }
 
         // Supports either a single colour string or an array of colours
-        const colours = Array.isArray(item.colour) ? item.colour : 
-                ( item.colour && item.colour.toLowerCase() !== 'none' ? [item.colour] : [] );
+        const colours = Array.isArray(item.colours) ? item.colours : 
+                ( item.colours && item.colours.toLowerCase() !== 'none' ? [item.colours] : [] );
 
         colours.forEach(col => {
             if (col && String(col).toLowerCase() !== 'none') {
@@ -98,9 +64,9 @@ function initializeCatalogue() {
         prodImgBox.classList.add('prod-img-box');
         const img = document.createElement('img');
        
-        fetchProductImageSrc(item.prodId).
+        fetchProductImageSrc(item.prod_id).
             then((resolvedSrc) => {
-                console.log(`Frontend got ${resolvedSrc} for ID: ${item.prodId}`)
+                console.log(`Frontend got ${resolvedSrc} for ID: ${item.prod_id}`)
                 img.src = resolvedSrc; 
         });
 
@@ -118,7 +84,7 @@ function initializeCatalogue() {
 
         const prodDesc = document.createElement('p');
         prodDesc.classList.add('prod-desc');
-        prodDesc.textContent = item.desc;
+        prodDesc.textContent = item.description;
 
         prodInfo.appendChild(prodName);
         prodInfo.appendChild(prodDesc);
@@ -134,7 +100,7 @@ function initializeCatalogue() {
 
         const statusText = document.createElement('span');
         statusText.classList.add('status-text');
-        statusText.textContent = isAvailable ? `${item.amountStock} in stock` : 'Out of stock';
+        statusText.textContent = isAvailable ? `${item.amount_stock} in stock` : 'Out of stock';
 
         prodStatus.appendChild(statusDot);
         prodStatus.appendChild(statusText);
@@ -143,7 +109,7 @@ function initializeCatalogue() {
         // add to cart button
         const prodActionBtn = document.createElement('button');
         prodActionBtn.classList.add('prod-action-btn');
-        prodActionBtn.dataset.id = item.prodId;
+        prodActionBtn.dataset.id = item.prod_id;
         prodActionBtn.disabled = !isAvailable;
         prodActionBtn.textContent = isAvailable ? 'Add to Cart' : 'Unavailable';
 
@@ -159,21 +125,21 @@ function initializeCatalogue() {
     // Add to Cart event listeners
     document.querySelectorAll('.prod-action-btn').forEach(button => {
         button.addEventListener('click', (e) => {
-            const prodId = e.target.getAttribute('data-id');
-            const product = equipmentData.find(p => String(p.prodId) === String(prodId));
+            const prod_id = e.target.getAttribute('data-id');
+            const product = equipmentData.find(p => String(p.prod_id) === String(prod_id));
 
             if (!product) return;
 
-            const existing = cart.find(item => String(item.prodId) === String(prodId));
+            const existing = cart.find(item => String(item.prod_id) === String(prod_id));
             if (existing) {
-                if (existing.quantity < product.amountStock) {
+                if (existing.quantity < product.amount_stock) {
                     existing.quantity += 1;
                     alert('Item quantity updated in cart!');
                 } else {
                     alert('Cannot add more than available stock.');
                 }
             } else {
-                cart.push({ prodId: product.prodId, quantity: 1 });
+                cart.push({ prod_id: product.prod_id, quantity: 1 });
                 alert('Item added to cart!');
             }
 
@@ -219,7 +185,7 @@ function initializeCart() {
         if (!product) return;
 
         // Disable '+' button if cart quantity equals or exceeds available stock
-        const isMaxStock = cartItem.quantity >= product.amountStock;
+        const isMaxStock = cartItem.quantity >= product.amount_stock;
 
         const cartCell = document.createElement('div');
         cartCell.className = 'cart-cell-item';
@@ -250,7 +216,7 @@ function initializeCart() {
 
         const cartItemDesc = document.createElement('span');
         cartItemDesc.classList.add('cart-item-spec');
-        cartItemDesc.textContent = product.desc;
+        cartItemDesc.textContent = product.description;
 
         cartItemInfo.appendChild(cartItemName);
         cartItemInfo.appendChild(cartItemDesc);
@@ -311,7 +277,7 @@ function attachCartActionListeners() {
             const item = cart.find(i => i.prodId === id);
             const product = equipmentData.find(eq => eq.prodId === id);
             
-            if (item && product && item.quantity < product.amountStock) {
+            if (item && product && item.quantity < product.amount_stock) {
                 item.quantity++;
                 localStorage.setItem('gearRigCart', JSON.stringify(cart));
                 initializeCart(); // Re-render cart view
@@ -322,7 +288,7 @@ function attachCartActionListeners() {
     document.querySelectorAll('.qty-dec').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const id = e.target.getAttribute('data-id');
-            const item = cart.find(i => i.prodId === id);
+            const item = cart.find(i => i.prod_id === id);
             if (item && item.quantity > 1) {
                 item.quantity--;
                 localStorage.setItem('gearRigCart', JSON.stringify(cart));
@@ -334,7 +300,7 @@ function attachCartActionListeners() {
     document.querySelectorAll('.cart-remove-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const id = e.target.getAttribute('data-id');
-            cart = cart.filter(i => i.prodId !== id);
+            cart = cart.filter(i => i.prod_id !== id);
             localStorage.setItem('gearRigCart', JSON.stringify(cart));
             initializeCart(); // Re-render cart view
         });
@@ -370,7 +336,7 @@ function setupCheckoutHandler() {
         cart.forEach(cartItem => {
             const product = equipmentData.find(p => p.prodId === cartItem.prodId);
             if (product) {
-                product.amountStock = Math.max(0, product.amountStock - cartItem.quantity);
+                product.amount_stock = Math.max(0, product.amount_stock - cartItem.quantity);
             }
         });
 
@@ -389,8 +355,41 @@ function setupCheckoutHandler() {
     });
 }
 
-// get valid src string from php endpoint,  
 
+/**
+ * 
+ * returns products fetched from backend based on given filters
+ * @params name, color and categories: optional list of strings.
+ *      if empty then fetch all products  
+ * @returns products fetched from backend
+ */
+async function fetchFilteredProducts({ name = '', colour = '', category = '' } = {}) {
+    const params = new URLSearchParams();
+
+    if (name.trim() !== '') params.set('name', name.trim());
+    if (colour.trim() !== '') params.set('colour', colour.trim());
+    if (category.trim() !== '') params.set('category', category.trim());
+
+    const query = params.toString();
+    const url = query
+    ? `../backend/api/products.php?${query}`
+    : '../backend/api/products.php';
+
+    const response = await fetch(url, {
+    method: 'GET',
+    credentials: 'same-origin',
+    headers: { Accept: 'application/json' },
+    });
+
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+    throw new Error(data.error || 'Failed to load products');
+    }
+
+    return data.products;
+}
+
+// get valid product image path string from php endpoint,  
 async function fetchProductImageSrc(prodId) {
     try {
         const url = `${IMAGE_ENDPOINT}?prodId=${encodeURIComponent(String(prodId ?? ''))}`;

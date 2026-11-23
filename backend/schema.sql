@@ -112,8 +112,8 @@ CREATE TABLE return_logs (
 
 -- Colours
 INSERT INTO colour (colour_id, name) VALUES 
-(1, 'Gold'), (2, 'White'), (3, 'Red'), 
-(4, 'Black'), (5, 'Silver'), (6, 'Green'), (7, 'Blue');
+(1, 'Gold'), (2, 'White'), (3, 'Red'), (4, 'Black'), 
+(5, 'Silver'), (6, 'Green'), (7, 'Blue'), (8, 'Orange');
 
 -- Categories
 INSERT INTO category (category_id, name) VALUES 
@@ -126,7 +126,8 @@ INSERT INTO product (prod_id, name, description, amount_stock) VALUES
     (3, 'Velvet Carpet', 'Linen-backed crimson runner, 10m roll', 20),
     (4, 'Speakers', '150dB peak SPL, dual XLR/TRS input', 20),
     (5, 'Microphone', '-54dBV/Pa sensitivity', 20),
-    (6, 'RGB LED Strip', 'Flexible 5m strip', 20);
+    (6, 'RGB LED Strip', 'Flexible 5m strip', 20),
+    (7, 'Gaffer Roll', '50mm matte cloth tape, 25m roll', 20);
 
 -- Product Categories
 INSERT INTO product_category (prod_id, category_id) VALUES
@@ -136,6 +137,7 @@ INSERT INTO product_category (prod_id, category_id) VALUES
     (4, 1), -- 4 electronics
     (5, 1), -- 5 electronics
     (6, 1), (6,2); -- 6 electronics, staging
+    -- 7 is no category
 
 -- Product Colours
 INSERT INTO product_colour (prod_id, colour_id) VALUES
@@ -143,7 +145,8 @@ INSERT INTO product_colour (prod_id, colour_id) VALUES
     (2, 2), -- 2 white  
     (3, 3), -- 3 red        
     -- 4, 5 have no colours
-    (6, 3), (6, 6), (6,7);-- 3 red green blue        
+    (6, 3), (6, 6), (6,7),-- 3 red green blue        
+    (7,8); -- 7 is orange
     
 
 -- Staff Accounts
