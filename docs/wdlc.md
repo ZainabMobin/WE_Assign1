@@ -72,7 +72,11 @@ User interface blueprints and feel
 
 ### Entity Relation Diagram
 
+** Naming convention: singular entity naming scheme
+** DDL and seed available in [db.sql](../backend/schema.sql)
+
 ![ERD](./img/erd.png)
+
 
 ### Equipment Lifecycle state management
 

@@ -21,7 +21,7 @@ CREATE TABLE product (
     prod_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description VARCHAR(255) NOT NULL,
-    amount_stock INT NOT NULL DEFAULT 0 CHECK (amount_stock >= 0),
+    amount_stock INT NOT NULL DEFAULT 0 CHECK (amount_stock >= 0)
    );
 
 -- 4. COLOURS
@@ -39,13 +39,13 @@ CREATE TABLE category (
 -- PRODUCT_COLOURS (many to many)
 CREATE TABLE product_colour (
     prod_id INT NOT NULL,
-    color_id INT NOT NULL,
-    PRIMARY KEY (prod_id, color_id),
+    colour_id INT NOT NULL,
+    PRIMARY KEY (prod_id, colour_id),
 
-    CONSTRAINT fk_pc_prod FOREIGN KEY (prod_id) 
-        REFERENCES products(prod_id) ON DELETE CASCADE,
-    CONSTRAINT fk_pc_col FOREIGN KEY (category_id) 
-        REFERENCES colour(category_id) ON DELETE CASCADE
+    CONSTRAINT fk_pcol_prod FOREIGN KEY (prod_id) 
+        REFERENCES product(prod_id) ON DELETE CASCADE,
+    CONSTRAINT fk_pcol_col FOREIGN KEY (colour_id) 
+        REFERENCES colour(colour_id) ON DELETE CASCADE
 );
 -- PRODUCT_CATEGORIES (many to many)
 CREATE TABLE product_category(
@@ -53,14 +53,14 @@ CREATE TABLE product_category(
     category_id INT NOT NULL,
     PRIMARY KEY (prod_id, category_id),
 
-    CONSTRAINT fk_pc_prod FOREIGN KEY (prod_id) 
-        REFERENCES products(prod_id) ON DELETE CASCADE,
-    CONSTRAINT fk_pc_cat FOREIGN KEY (category_id) 
+    CONSTRAINT fk_pcat_prod FOREIGN KEY (prod_id) 
+        REFERENCES product(prod_id) ON DELETE CASCADE,
+    CONSTRAINT fk_pcat_cat FOREIGN KEY (category_id) 
         REFERENCES category(category_id) ON DELETE CASCADE
 );
 
 -- 6. ORDERS
-CREATE TABLE orders (
+CREATE TABLE borrow_order (
     order_id INT AUTO_INCREMENT PRIMARY KEY,
     status ENUM('PENDING', 'CONFIRMED', 'PARTIALLY_RETURNED', 'RETURNED', 'CANCELLED') 
         NOT NULL DEFAULT 'PENDING',
@@ -87,7 +87,7 @@ CREATE TABLE borrowed_item (
     order_id INT NOT NULL,
     prod_id INT NOT NULL,
     CONSTRAINT fk_bi_order FOREIGN KEY (order_id) 
-        REFERENCES order(order_id) ON DELETE CASCADE,
+        REFERENCES borrow_order(order_id) ON DELETE CASCADE,
     CONSTRAINT fk_bi_prod FOREIGN KEY (prod_id) 
         REFERENCES product(prod_id) ON DELETE RESTRICT
 );
@@ -103,7 +103,7 @@ CREATE TABLE return_logs (
     borrow_id INT NOT NULL,
     receive_staff_id INT NOT NULL,
     CONSTRAINT fk_rl_item FOREIGN KEY (borrow_id) 
-        REFERENCES borrowed_items(borrow_id) ON DELETE CASCADE,
+        REFERENCES borrowed_item(borrow_id) ON DELETE CASCADE,
     CONSTRAINT fk_rl_staff FOREIGN KEY (receive_staff_id) 
         REFERENCES staff(staff_id) ON DELETE RESTRICT
 );
@@ -120,12 +120,12 @@ INSERT INTO category (category_id, name) VALUES
 
 -- Products
 INSERT INTO product (prod_id, name, description, amount_stock) VALUES
-    (1, 'Spotlight', '18W golden beam, adjustable mount', 10),
-    (2, 'Flood Light', '20W wide-angle LED, IP65 rated', 8),
-    (3, 'Velvet Carpet', 'Linen-backed crimson runner, 10m roll', 5),
-    (4, 'Speakers', '150dB peak SPL, dual XLR/TRS input', 4),
-    (5, 'Microphone', '-54dBV/Pa sensitivity', 9);
-    (6, 'RGB LED Strip', 'Flexible 5m strip', 15);
+    (1, 'Spotlight', '18W golden beam, adjustable mount', 20),
+    (2, 'Flood Light', '20W wide-angle LED, IP65 rated', 20),
+    (3, 'Velvet Carpet', 'Linen-backed crimson runner, 10m roll', 20),
+    (4, 'Speakers', '150dB peak SPL, dual XLR/TRS input', 20),
+    (5, 'Microphone', '-54dBV/Pa sensitivity', 20),
+    (6, 'RGB LED Strip', 'Flexible 5m strip', 20);
 
 -- Product Categories
 INSERT INTO product_category (prod_id, category_id) VALUES
@@ -142,7 +142,7 @@ INSERT INTO product_colour (prod_id, colour_id) VALUES
     (2, 2), -- 2 white  
     (3, 3), -- 3 red        
     -- 4, 5 have no colours
-    (6, 3), (6, 7), (6,7)-- 3 red green blue        
+    (6, 3), (6, 6), (6,7);-- 3 red green blue        
     
 
 -- Staff Accounts
@@ -160,7 +160,7 @@ INSERT INTO user (user_id, email) VALUES
     (6, 'ff.bese24seecs@nust.edu.pk');
 
 -- Orders (Using issue_staff_id)
-INSERT INTO orders (order_id, user_id, issue_staff_id, status, order_date, due_date) VALUES
+INSERT INTO borrow_order (order_id, user_id, issue_staff_id, status, order_date, due_date) VALUES
     (1, 1, 1, 'CONFIRMED', '2026-11-10 10:00:00', '2026-12-05'),
     (2, 2, 1, 'PARTIALLY_RETURNED', '2026-11-11 14:30:00', '2026-12-18'),
     (3, 3, 2, 'RETURNED', '2026-11-01 09:15:00', '2027-01-04'),
