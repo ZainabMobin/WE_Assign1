@@ -150,6 +150,13 @@ async function initializeCatalogue() {
 
 // should fetch data from databse upon reresh
 function initializeCart() {
+
+    // const borrowEmail = document.getElementByIdById('borrow-email');
+    // borrowEmail.textContent = currUser['email']; // current user logged in
+
+    // // disable borrow email from editing
+
+
     const cartGrid = document.querySelector('.cart-grid');
     if (!cartGrid) return;
 
@@ -319,7 +326,7 @@ function setupCheckoutHandler() {
     freshForm.addEventListener('submit', (e) => {
         e.preventDefault();
 
-        const emailInput = document.getElementById('student-email').value.trim();
+        const emailInput = document.getElementById('borrow-email').value.trim();
         
         if (cart.length === 0) {
             alert('Your cart is empty!');
@@ -355,6 +362,26 @@ function setupCheckoutHandler() {
     });
 }
 
+const loginBtn = document.getElementById('login-submit-btn')
+if (loginBtn){
+    loginBtn.addEventListener('click', async(e) => {
+        
+        console.log('submit login btn clicked!');
+        e.preventDefault();
+        
+        const emailInput = document.getElementById('login-email');
+        const passwordInput = document.getElementById('login-password');
+        
+        const email = emailInput? emailInput.value.trim() : '';
+        const password = passwordInput? passwordInput.value.trim() : '';
+    
+        const res = await fetchAuthStatus(email, password);
+
+        if (res.authorized === 'true'){
+            //reditect to cart with prefilled email value
+        }
+    });
+}
 
 /**
  * 
@@ -376,9 +403,9 @@ async function fetchFilteredProducts({ name = '', colour = '', category = '' } =
     : '../backend/api/products.php';
 
     const response = await fetch(url, {
-    method: 'GET',
-    credentials: 'same-origin',
-    headers: { Accept: 'application/json' },
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: { Accept: 'application/json' },
     });
 
     const data = await response.json();
@@ -404,4 +431,33 @@ async function fetchProductImageSrc(prodId) {
         console.error('Image lookup failed for', prodId, err);
         return FALLBACK_IMG_SRC;
     }
+}
+
+
+/**
+ * To check for user authorization
+ * @param {String} email 
+ * @param {String} password 
+ * @returns {Promise} data
+ */
+async function fetchAuthStatus(email, password){
+
+    const url = '../backend/api/login.php';
+
+    const response = await fetch(url, {
+        method: 'POST',
+        credential: 'same-origin',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+            email: email, 
+            password: password, 
+        }),
+    });
+
+    const data = await response.json();
+    console.log('got data from backend auth: ', data.error);
+    return data;
 }
