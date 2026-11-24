@@ -38,12 +38,7 @@ try {
     $stmt->execute();
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!is_array($user) || !password_verify($password, (string) $user['password_hash'])) {
-        http_response_code(401);
-        echo json_encode(['ok' => false, 'error' => 'Invalid email or password']);
-        exit;
-        }
-        
+       
     // user email not found or incorrect password
     if (!is_array($user) || !password_verify($password, (string) $user['password_hash'])) {
         http_response_code(401);
@@ -55,14 +50,19 @@ try {
     $_SESSION['user_id'] = (int) $user['user_id'];
     $_SESSION['user_email'] = (string) $user['email'];
 
+    if (empty($_SESSION['csrf_token'])){
+        $_SESSION['csrf-token'] = bin2hex(random_bytes(32));
+    }
+
     echo json_encode([
         'ok' => true,
         'authorized' => true,
         'user' => [
             'user_id' => (int) $user['user_id'],
             'email' => (string) $user['email'],
-            ],
-            ], JSON_UNESCAPED_SLASHES);
+        ],
+        'csrf_token' => $_SESSION['csrf-token'],
+    ], JSON_UNESCAPED_SLASHES);
     exit;
 } catch (Throwable $e) {
     error_log('GearRig login error: ' . $e->getMessage());

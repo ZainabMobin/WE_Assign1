@@ -29,17 +29,17 @@
             <h1>Borrower Login</h1>
             <p>Sign in with registered NUST account to proceed</p>
 
-            <form id="login-form">
+            <form id="login-form" novalidate>
                 <div class="form-group">
                     <label for="login-email">University Email</label>
                     <input type="email" id="login-email" name="email" required 
-                    pattern='.+@nust.edu.pk' placeholder="student@nust.edu.pk" >
+                    pattern=".+@nust\.edu\.pk$" placeholder="student@nust.edu.pk">
                 </div>
 
                 <div class="form-group">
                     <label for="login-password">Password</label>
-                    <input type="password" id="login-password" name="password" required 
-                    placeholder="Enter your password">
+                    <input type="password" id="login-password" name="password" required
+                        minlength="6" placeholder="Enter your password">
                 </div>
 
                 <button type="submit" id="login-submit-btn">Sign In</button>

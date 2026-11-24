@@ -1,6 +1,9 @@
 
 // Load equipment data and cart from localStorage
-let cart = JSON.parse(localStorage.getItem('gearRigCart')) || [];
+let currentUserID = null;
+let currentUserEmail = '';
+let csrfToken = '';
+let cart = [];
 
 const IMAGE_ENDPOINT = '../backend/api/image.php';
 const FALLBACK_IMG_SRC = 'assets/img/fallback.jpg';
@@ -149,20 +152,32 @@ async function initializeCatalogue() {
 }
 
 // should fetch data from databse upon reresh
-function initializeCart() {
+async function initializeCart() {
+    lockBorrowEmailInput();
 
-    // const borrowEmail = document.getElementByIdById('borrow-email');
-    // borrowEmail.textContent = currUser['email']; // current user logged in
-
-    // // disable borrow email from editing
-
-
+    
     const cartGrid = document.querySelector('.cart-grid');
     if (!cartGrid) return;
-
+    
     cartGrid.innerHTML = '';
-
-    // Set return date constraints (Today to 4 months max)
+    
+    if (currentUserID === null) {
+        const emptyMsg = document.createElement('div');
+        emptyMsg.classList.add('empty-cart');
+        emptyMsg.textContent = 'Sign in to add items to your cart';
+        cartGrid.appendChild(emptyMsg);
+        
+        const borrowEmail = document.getElementById('borrow-email');
+        if (!borrowEmail) return;
+        
+        borrowEmail.readOnly = true;
+        borrowEmail.disabled = true;
+        borrowEmail.classList.add('disabled');
+        
+        setupCheckoutHandler();
+        return;
+    }
+    
     const returnDateInput = document.getElementById('return-date');
     if (returnDateInput) {
         const today = new Date();
@@ -184,36 +199,36 @@ function initializeCart() {
         emptyMsg.classList.add('empty-cart');
         emptyMsg.textContent = 'Your cart is empty. Browse the Catalogue to add gear.';
         cartGrid.appendChild(emptyMsg);
+        setupCheckoutHandler();
         return;
     }
 
+    if (equipmentData.length === 0) {
+        const fetchedProducts = await fetchFilteredProducts(filters);
+        equipmentData = Array.isArray(fetchedProducts) ? fetchedProducts : [];
+    }
+
     cart.forEach(cartItem => {
-        const product = equipmentData.find(eq => String(eq.prodId) === String(cartItem.prodId));
+        const itemId = cartItem.prod_id ?? cartItem.prodId;
+        const product = equipmentData.find(eq => String(eq.prod_id) === String(itemId));
         if (!product) return;
 
-        // Disable '+' button if cart quantity equals or exceeds available stock
         const isMaxStock = cartItem.quantity >= product.amount_stock;
 
         const cartCell = document.createElement('div');
         cartCell.className = 'cart-cell-item';
 
-
-        // image holder
         const cartItemImgBox = document.createElement('div');
         cartItemImgBox.classList.add('cart-item-img-box');
 
         const cartItemImg = document.createElement('img');
-        fetchProductImageSrc(cartItem.prodId)
-            .then((resolvedSrc) => {
-                console.log(`Frontend got ${resolvedSrc} for ID: ${cartItem.prodId}`)
-                cartItemImg.src = resolvedSrc; 
-            });
+        cartItemImg.src = FALLBACK_IMG_SRC;
+        fetchProductImageSrc(product.prod_id).then((resolvedSrc) => {
+            cartItemImg.src = resolvedSrc;
+        });
         cartItemImg.alt = product.name;
-        
         cartItemImgBox.appendChild(cartItemImg);
 
-
-        // info holds name and desc
         const cartItemInfo = document.createElement('div');
         cartItemInfo.classList.add('cart-item-info');
 
@@ -228,14 +243,12 @@ function initializeCart() {
         cartItemInfo.appendChild(cartItemName);
         cartItemInfo.appendChild(cartItemDesc);
 
-
-        // controls -, amount and + btns
         const cartItemControl = document.createElement('div');
         cartItemControl.classList.add('cart-item-controls');
 
         const minusBtn = document.createElement('button');
         minusBtn.classList.add('qty-btn', 'qty-dec');
-        minusBtn.dataset.id = product.prodId;
+        minusBtn.dataset.id = product.prod_id;
         minusBtn.textContent = '-';
 
         const amountDisplay = document.createElement('span');
@@ -244,7 +257,7 @@ function initializeCart() {
 
         const plusBtn = document.createElement('button');
         plusBtn.classList.add('qty-btn', 'qty-inc');
-        plusBtn.dataset.id = product.prodId;
+        plusBtn.dataset.id = product.prod_id;
         plusBtn.textContent = '+';
 
         if (isMaxStock) {
@@ -257,11 +270,9 @@ function initializeCart() {
         cartItemControl.appendChild(amountDisplay);
         cartItemControl.appendChild(plusBtn);
 
-
-        // Remove from cart button
         const cartRemoveBtn = document.createElement('button');
         cartRemoveBtn.classList.add('cart-remove-btn');
-        cartRemoveBtn.dataset.id = product.prodId;
+        cartRemoveBtn.dataset.id = product.prod_id;
         cartRemoveBtn.textContent = '×';
 
         cartCell.appendChild(cartItemImgBox);
@@ -276,111 +287,190 @@ function initializeCart() {
     setupCheckoutHandler();
 }
 
-// Helper to handle quantity updates and item removal in cart view
 function attachCartActionListeners() {
     document.querySelectorAll('.qty-inc').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            const id = e.target.getAttribute('data-id');
-            const item = cart.find(i => i.prodId === id);
-            const product = equipmentData.find(eq => eq.prodId === id);
-            
+            const id = e.currentTarget.getAttribute('data-id');
+            const item = cart.find(i => String(i.prod_id ?? i.prodId) === String(id));
+            const product = equipmentData.find(eq => String(eq.prod_id) === String(id));
+
             if (item && product && item.quantity < product.amount_stock) {
-                item.quantity++;
-                localStorage.setItem('gearRigCart', JSON.stringify(cart));
-                initializeCart(); // Re-render cart view
+                item.quantity += 1;
+                initializeCart();
             }
         });
     });
 
     document.querySelectorAll('.qty-dec').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            const id = e.target.getAttribute('data-id');
-            const item = cart.find(i => i.prod_id === id);
+            const id = e.currentTarget.getAttribute('data-id');
+            const item = cart.find(i => String(i.prod_id ?? i.prodId) === String(id));
             if (item && item.quantity > 1) {
-                item.quantity--;
-                localStorage.setItem('gearRigCart', JSON.stringify(cart));
-                initializeCart(); // Re-render cart view
+                item.quantity -= 1;
+                initializeCart();
             }
         });
     });
 
     document.querySelectorAll('.cart-remove-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            const id = e.target.getAttribute('data-id');
-            cart = cart.filter(i => i.prod_id !== id);
-            localStorage.setItem('gearRigCart', JSON.stringify(cart));
-            initializeCart(); // Re-render cart view
+            const id = e.currentTarget.getAttribute('data-id');
+            cart = cart.filter(i => String(i.prod_id ?? i.prodId) !== String(id));
+            initializeCart();
         });
     });
 }
 
-// Checkout submission handler: reduces equipment stock & resets cart
 function setupCheckoutHandler() {
     const checkoutForm = document.getElementById('checkout-form');
     if (!checkoutForm) return;
 
-    // Remove existing listeners to avoid duplicate bindings if re-initialized
-    checkoutForm.replaceWith(checkoutForm.cloneNode(true));
-    const freshForm = document.getElementById('checkout-form');
+    const freshForm = checkoutForm.cloneNode(true);
+    checkoutForm.replaceWith(freshForm);
+    lockBorrowEmailInput();
 
     freshForm.addEventListener('submit', (e) => {
         e.preventDefault();
 
-        const emailInput = document.getElementById('borrow-email').value.trim();
-        
+        syncSessionStateFromStorage();
+        const emailField = document.getElementById('borrow-email');
+        const emailInput = (currentUserEmail || (emailField ? emailField.value.trim() : '')).toLowerCase();
+
         if (cart.length === 0) {
             alert('Your cart is empty!');
             return;
         }
 
-        // Validate university domain ending
-        if (!emailInput.endsWith('nust.edu.pk')) {
-            alert('Checkout requires a valid university email domain ending with nust.edu.pk');
+        if (!emailInput.endsWith('@nust.edu.pk')) {
+            alert('Checkout requires a valid university email ending with @nust.edu.pk');
             return;
         }
-        
-        // Decrease stock counts in equipmentData
+
         cart.forEach(cartItem => {
-            const product = equipmentData.find(p => p.prodId === cartItem.prodId);
+            const itemId = cartItem.prod_id ?? cartItem.prodId;
+            const product = equipmentData.find(p => String(p.prod_id) === String(itemId));
             if (product) {
                 product.amount_stock = Math.max(0, product.amount_stock - cartItem.quantity);
             }
         });
 
-        // Reset cart completely
         cart = [];
-
-        // Save updated equipment inventory and cleared cart to localStorage
-        localStorage.setItem('gearRigEquipment', JSON.stringify(equipmentData));
-        localStorage.setItem('gearRigCart', JSON.stringify(cart));
-
         alert('Checkout successful! Inventory updated and cart reset.');
-        
-        // Re-render cart interface to show empty state
         initializeCart();
         freshForm.reset();
+        lockBorrowEmailInput();
     });
 }
 
-const loginBtn = document.getElementById('login-submit-btn')
-if (loginBtn){
-    loginBtn.addEventListener('click', async(e) => {
-        
-        console.log('submit login btn clicked!');
+function syncSessionStateFromStorage() {
+    if (!currentUserEmail) {
+        currentUserEmail = sessionStorage.getItem('gearRigAuthEmail') || '';
+    }
+    if (currentUserID === null) {
+        const storedId = sessionStorage.getItem('gearRigAuthUserId');
+        if (storedId) {
+            currentUserID = Number(storedId);
+        }
+    }
+    if (!csrfToken) {
+        csrfToken = sessionStorage.getItem('gearRigToken') || '';
+    }
+}
+
+function setLoginFeedback(message, isError = false) {
+    const msgEl = document.getElementById('login-message');
+    if (!msgEl) return;
+    msgEl.textContent = message;
+    msgEl.hidden = !message;
+    msgEl.classList.toggle('error', isError);
+    msgEl.classList.toggle('success', !isError && Boolean(message));
+}
+
+function validateLoginForm(email, password) {
+    if (!email) {
+        return 'Please enter your university email.';
+    }
+    if (!/^[^\s@]+@nust\.edu\.pk$/i.test(email)) {
+        return 'Please use a valid @nust.edu.pk email address.';
+    }
+    if (!password) {
+        return 'Please enter your password.';
+    }
+    if (password.length < 6) {
+        return 'Password must be at least 6 characters.';
+    }
+    return '';
+}
+
+function setupLoginHandler() {
+    const loginBtn = document.getElementById('login-submit-btn');
+    if (!loginBtn) return;
+
+    loginBtn.addEventListener('click', async (e) => {
         e.preventDefault();
-        
+
         const emailInput = document.getElementById('login-email');
         const passwordInput = document.getElementById('login-password');
-        
-        const email = emailInput? emailInput.value.trim() : '';
-        const password = passwordInput? passwordInput.value.trim() : '';
-    
-        const res = await fetchAuthStatus(email, password);
 
-        if (res.authorized === 'true'){
-            //reditect to cart with prefilled email value
+        const email = emailInput ? emailInput.value.trim().toLowerCase() : '';
+        const password = passwordInput ? passwordInput.value : '';
+
+        const validationError = validateLoginForm(email, password);
+        if (validationError) {
+            setLoginFeedback(validationError, true);
+            return;
+        }
+
+        loginBtn.disabled = true;
+        setLoginFeedback('Signing in...', false);
+
+        try {
+            const res = await fetchAuthStatus(email, password);
+
+            if (res && res.ok && res.authorized === true) {
+                currentUserID = res.user?.user_id ?? null;
+                currentUserEmail = res.user?.email ?? email;
+                csrfToken = res.csrf_token ?? '';
+
+                sessionStorage.setItem('gearRigAuthEmail', currentUserEmail);
+                if (currentUserID !== null) {
+                    sessionStorage.setItem('gearRigAuthUserId', String(currentUserID));
+                }
+                if (csrfToken) {
+                    sessionStorage.setItem('gearRigToken', String(csrfToken));
+                }
+
+                window.location.href = './cart.html';
+                return;
+            }
+
+            setLoginFeedback(res?.error || 'Invalid email or password.', true);
+        } catch (err) {
+            console.error('Login failed:', err);
+            setLoginFeedback('Could not connect to authentication endpoint.', true);
+        } finally {
+            loginBtn.disabled = false;
         }
     });
+}
+
+// locks borrow email inout field on checkout
+function lockBorrowEmailInput() {
+    syncSessionStateFromStorage();
+    const borrowEmail = document.getElementById('borrow-email');
+    if (!borrowEmail) return;
+
+    if (currentUserEmail) {
+        borrowEmail.value = currentUserEmail;
+        borrowEmail.readOnly = true;
+        borrowEmail.disabled = true;
+        borrowEmail.classList.add('disabled');
+    } else {
+        borrowEmail.value = '';
+        borrowEmail.readOnly = false;
+        borrowEmail.disabled = false;
+        borrowEmail.classList.remove('disabled');
+    }
 }
 
 /**
@@ -446,7 +536,7 @@ async function fetchAuthStatus(email, password){
 
     const response = await fetch(url, {
         method: 'POST',
-        credential: 'same-origin',
+        credentials: 'same-origin',
         headers: { 
             'Content-Type': 'application/json',
             'Accept': 'application/json',
