@@ -29,7 +29,7 @@
             <h1>Borrower Login</h1>
             <p>Sign in with registered NUST account to proceed</p>
 
-            <form id="login-form" novalidate>
+            <form id="login-form" method="post">
                 <div class="form-group">
                     <label for="login-email">University Email</label>
                     <input type="email" id="login-email" name="email" required 
@@ -38,7 +38,7 @@
 
                 <div class="form-group">
                     <label for="login-password">Password</label>
-                    <input type="password" id="login-password" name="password" required
+                    <input type="text" id="login-password" name="password" required
                         minlength="6" placeholder="Enter your password">
                 </div>
 

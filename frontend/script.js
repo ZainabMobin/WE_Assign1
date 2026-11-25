@@ -1,9 +1,8 @@
-
-// Load equipment data and cart from localStorage
 let currentUserID = null;
 let currentUserEmail = '';
 let csrfToken = '';
 let cart = [];
+const CART_SESSION_KEY = 'gearRigSessionCart';
 
 const IMAGE_ENDPOINT = '../backend/api/image.php';
 const FALLBACK_IMG_SRC = 'assets/img/fallback.jpg';
@@ -133,7 +132,7 @@ async function initializeCatalogue() {
 
             if (!product) return;
 
-            const existing = cart.find(item => String(item.prod_id) === String(prod_id));
+            const existing = cart.find(item => String(item.prod_id ?? item.prodId ) === String(prod_id));
             if (existing) {
                 if (existing.quantity < product.amount_stock) {
                     existing.quantity += 1;
@@ -143,10 +142,10 @@ async function initializeCatalogue() {
                 }
             } else {
                 cart.push({ prod_id: product.prod_id, quantity: 1 });
+                saveCartToSession(cart);
                 alert('Item added to cart!');
             }
 
-            localStorage.setItem('gearRigCart', JSON.stringify(cart));
         });
     });
 }
@@ -287,6 +286,30 @@ async function initializeCart() {
     setupCheckoutHandler();
 }
 
+// refresh only the numbered values in the cart items and not the whole UI (bug re-rerenders with image fetch again and again) 
+function refreshCartItemUI(prodId, cartItem, product) {
+    const btn = document.querySelector(`.qty-inc[data-id="${prodId}"]`);
+    const cell = btn ? btn.closest('.cart-cell-item') : null;
+    if (!cell) {
+        initializeCart();
+        return;
+    }
+
+    const amountDisplay = cell.querySelector('.qty-display');
+    const plusBtn = cell.querySelector('.qty-inc');
+    const isMaxStock = cartItem.quantity >= product.amount_stock;
+
+    if (amountDisplay) {
+        amountDisplay.textContent = String(cartItem.quantity);
+    }
+
+    if (plusBtn) {
+        plusBtn.disabled = isMaxStock;
+        plusBtn.style.opacity = isMaxStock ? '0.4' : '';
+        plusBtn.style.cursor = isMaxStock ? 'not-allowed' : '';
+    }
+}
+
 function attachCartActionListeners() {
     document.querySelectorAll('.qty-inc').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -296,7 +319,8 @@ function attachCartActionListeners() {
 
             if (item && product && item.quantity < product.amount_stock) {
                 item.quantity += 1;
-                initializeCart();
+                saveCartToSession();
+                refreshCartItemUI(id, item, product);
             }
         });
     });
@@ -305,9 +329,12 @@ function attachCartActionListeners() {
         btn.addEventListener('click', (e) => {
             const id = e.currentTarget.getAttribute('data-id');
             const item = cart.find(i => String(i.prod_id ?? i.prodId) === String(id));
-            if (item && item.quantity > 1) {
+            const product = equipmentData.find(eq => String(eq.prod_id) === String(id));
+
+            if (item && product && item.quantity > 1) {
                 item.quantity -= 1;
-                initializeCart();
+                saveCartToSession();
+                refreshCartItemUI(id, item, product);
             }
         });
     });
@@ -316,6 +343,7 @@ function attachCartActionListeners() {
         btn.addEventListener('click', (e) => {
             const id = e.currentTarget.getAttribute('data-id');
             cart = cart.filter(i => String(i.prod_id ?? i.prodId) !== String(id));
+            saveCartToSession();
             initializeCart();
         });
     });
@@ -329,10 +357,17 @@ function setupCheckoutHandler() {
     checkoutForm.replaceWith(freshForm);
     lockBorrowEmailInput();
 
-    freshForm.addEventListener('submit', (e) => {
+    freshForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         syncSessionStateFromStorage();
+        loadCartFromSession();
+
+        if (currentUserID === null) {
+            alert('Please sign in before submitting an order.');
+            return;
+        }
+
         const emailField = document.getElementById('borrow-email');
         const emailInput = (currentUserEmail || (emailField ? emailField.value.trim() : '')).toLowerCase();
 
@@ -346,20 +381,61 @@ function setupCheckoutHandler() {
             return;
         }
 
-        cart.forEach(cartItem => {
-            const itemId = cartItem.prod_id ?? cartItem.prodId;
-            const product = equipmentData.find(p => String(p.prod_id) === String(itemId));
-            if (product) {
-                product.amount_stock = Math.max(0, product.amount_stock - cartItem.quantity);
-            }
-        });
+        const returnDateInput = document.getElementById('return-date');
+        const returnDate = returnDateInput ? returnDateInput.value : '';
 
-        cart = [];
-        alert('Checkout successful! Inventory updated and cart reset.');
-        initializeCart();
-        freshForm.reset();
-        lockBorrowEmailInput();
+        const submitBtn = freshForm.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
+
+        try {
+            const { status, data } = await postCheckout(currentUserID, cart, returnDate);
+
+            if (status === 409 || data?.stock_exceeded) {
+                // Dont reset cart so user can adjust quantities
+                alert(data?.error || 'Requested amount exceeds available stock.');
+                return;
+            }
+
+            if (!data || !data.ok) {
+                alert(data?.error || 'Could not complete checkout.');
+                return;
+            }
+
+            // Order succeeded: clear cart and reset form
+            cart = [];
+            sessionStorage.removeItem(CART_SESSION_KEY);
+            equipmentData = [];
+            alert('Checkout successful! Order submitted.');
+            await initializeCart();
+            freshForm.reset();
+            lockBorrowEmailInput();
+        } catch (err) {
+            console.error('Checkout error:', err);
+            alert('Network or server error during checkout.');
+        } finally {
+            if (submitBtn) submitBtn.disabled = false;
+        }
     });
+}
+
+/**
+ * load cart stored in sessionStorage per session key
+ */
+function loadCartFromSession() {
+    try {
+        const raw = sessionStorage.getItem(CART_SESSION_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        cart = Array.isArray(parsed) ? parsed : [];
+    } catch {
+        cart = [];
+    }
+}
+
+/**
+ * save current cart to session storage
+ */
+function saveCartToSession(){
+    sessionStorage.setItem(CART_SESSION_KEY, JSON.stringify(cart));
 }
 
 function syncSessionStateFromStorage() {
@@ -403,10 +479,11 @@ function validateLoginForm(email, password) {
 }
 
 function setupLoginHandler() {
+    const loginForm = document.getElementById('login-form');
     const loginBtn = document.getElementById('login-submit-btn');
-    if (!loginBtn) return;
+    if (!loginForm || !loginBtn) return;
 
-    loginBtn.addEventListener('click', async (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
 
         const emailInput = document.getElementById('login-email');
@@ -425,7 +502,9 @@ function setupLoginHandler() {
         setLoginFeedback('Signing in...', false);
 
         try {
-            const res = await fetchAuthStatus(email, password);
+            const res = await postAuthInfo(email, password);
+
+            console.log('calling backend for auth verification');
 
             if (res && res.ok && res.authorized === true) {
                 currentUserID = res.user?.user_id ?? null;
@@ -451,7 +530,13 @@ function setupLoginHandler() {
         } finally {
             loginBtn.disabled = false;
         }
-    });
+    };
+
+    if (loginForm){
+        loginForm.addEventListener('submit', handleLogin);
+    } else if (loginBtn){
+        loginBtn.addEventListener('click', handleLogin);
+    }
 }
 
 // locks borrow email inout field on checkout
@@ -472,6 +557,13 @@ function lockBorrowEmailInput() {
         borrowEmail.classList.remove('disabled');
     }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    syncSessionStateFromStorage();
+    loadCartFromSession();
+    setupLoginHandler();
+    initializeCart();
+});
 
 /**
  * 
@@ -530,7 +622,7 @@ async function fetchProductImageSrc(prodId) {
  * @param {String} password 
  * @returns {Promise} data
  */
-async function fetchAuthStatus(email, password){
+async function postAuthInfo(email, password){
 
     const url = '../backend/api/login.php';
 
@@ -550,4 +642,39 @@ async function fetchAuthStatus(email, password){
     const data = await response.json();
     console.log('got data from backend auth: ', data.error);
     return data;
+}
+
+/**
+ * 
+ * @param {int} userID 
+ * @param {JSON Array} items 
+ * @param {String} returnDate 
+ * @returns 
+ */
+async function postCheckout(userID, items, returnDate = '') {
+    syncSessionStateFromStorage();
+
+    const url = '../backend/api/checkout.php';
+    const headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+    };
+
+    if (csrfToken) {
+        headers['X-CSRF-Token'] = csrfToken;
+    }
+
+    const response = await fetch(url, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers,
+        body: JSON.stringify({
+            user_id: userID,
+            items,
+            return_date: returnDate,
+        }),
+    });
+
+    const data = await response.json();
+    return { status: response.status, ok: response.ok, data };
 }
