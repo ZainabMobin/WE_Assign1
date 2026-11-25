@@ -562,7 +562,6 @@ document.addEventListener('DOMContentLoaded', () => {
     syncSessionStateFromStorage();
     loadCartFromSession();
     setupLoginHandler();
-    initializeCart();
 });
 
 /**
