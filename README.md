@@ -1,31 +1,52 @@
 # GearRig : Event Equipment Checkout for University
 
+
+<div style="display: flex; justify-content: center">
+
+[![HTML](https://img.shields.io/badge/HTML-%23E34F26.svg?logo=html5&logoColor=white)](#)
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=000)](#)
+[![JSON](https://img.shields.io/badge/JSON-000?logo=json&logoColor=fff)](#)
+[![CSS](https://img.shields.io/badge/CSS-639?logo=css&logoColor=fff)](#)
+[![PHP](https://img.shields.io/badge/PHP-%23777BB4.svg?&logo=php&logoColor=white)](#)
+[![MySQL](https://img.shields.io/badge/MySQL-4479A1?logo=mysql&logoColor=fff)](#)
+[![Node.test](https://img.shields.io/badge/Node.test-6DA55F?logo=node.js&logoColor=white)](#)
+[![Postman](https://img.shields.io/badge/Postman-FF6C37?logo=postman&logoColor=white)](#)
+
+</div>
+
 A modular, responsive web prototype designed for university event equipment depots. Eliminates stale inventory data, gives item accountability tracking and enforces institutional identification.
 
 ## Setup & Running Instructions
 
-**STACK:**
-- PHP 8.5 with PDO and SQLite/MySQL.
-- json api endpoints
-
 ### Quick Start (Local Execution)
 1. **Clone or Download** this repository to your local machine.
 2. In case of custom assets, ensure folder structure matches the project layout (`./assets/img/`) and relevant naming scheme.
-3. Start php server on port 8000:
+3. Log into mysql with user, populate `/backend/.env` with MySQL user credentials:
+
+```
+DB_PORT=******
+DB_NAME=gearrig_db
+DB_USER=******
+DB_PASSWORD=******
+```
+4. Log into mysql with user, create the database with the given seed schema:
+
+```bash
+SOURCE /backend/schema.sql
+```
+
+5. Start php server on port 8000:
 
 ```bash
 php -S 127.0.0.1:8000
 ```
-4. View frontend on: [http://127.0.0.1:8000/frontend/index.html](http://127.0.0.1:8000/frontend/index.html)
+6. View frontend on: [http://127.0.0.1:8000/frontend/index.html](http://127.0.0.1:8000/frontend/index.html)
 
-5. Run test suite
+7. Run test suites
 ```bash
-node --test test/login.test.js
+php -S 127.0.0.1:8000 # server starts running
+node --test test/login.test.js # run test suite <endpoint>.test.js
 ```
-
-- start/ensure mysql service daemon is running. 
-- init db: insert the script first of all (or can have a backup file for the db)
-- ensure php is installed, start php server
 
 ### Project Directory Overview
 
@@ -33,8 +54,18 @@ node --test test/login.test.js
 .
 ├── backend
 │   ├── api
-│   │   └── image.php
-│   └── schema.sql
+│   │   ├── checkout.php
+│   │   ├── health.php
+│   │   ├── image.php
+│   │   ├── login.php
+│   │   ├── order.php
+│   │   └── products.php
+│   ├── config
+│   │   ├── csrf.php
+│   │   └── db.php
+│   ├── schema.sql
+│   └── tests
+│       └── db_helper.php
 ├── docs
 │   ├── design-note.md
 │   ├── img
@@ -48,33 +79,35 @@ node --test test/login.test.js
 │   ├── cart.html
 │   ├── catalogue.html
 │   ├── index.html
+│   ├── login.html
 │   ├── script.js
 │   └── style.css
-└── README.md
+├── README.md
+└── test
+    ├── checkout.test.js
+    └── login.test.js
+
 ```
 
 #### Documentation:
 - All md files serve as documentation, present in the `/docs` folder. 
 
 #### Backend:
-
+- `/backend` contains server code written in php 
+- `/backend/api` contains all API endpoints 
+- `/backend/config` contains configuration and utilities such as establishing database connection, csrf validation middleware etc. 
+- `/backend/schema.sql` contains database seed schema 
+- `/backend/tests/db_helper` contains helper databse functions used in checkout test suite 
 
 #### Frontend:
 - `/assets` contains project images and fonts.
 - Contains three linked html pages: `index.html`, `catalogue.html` and `cart.html`
 - Shared css and js files are used among all three html pages.  
 
+#### Test:
+- `/test` contians test suited for backend endpoints with partition strategy mentioned
 
 ## Assignment 2 deliverables:
-
-backend php, db connection check
-try catch statements
-layered backend statement
-email service for order verification
-pagination of results
-filtering of data
-Add email confirmation for initial student email provided, code must match and expiry is 10 mins.
-
 
 **FRONTEND:**
 - Show loading, success, empty and error states without unnecessary page reloads.
@@ -106,7 +139,9 @@ Add email confirmation for initial student email provided, code must match and e
 ## Technical Implementation & Architecture
 
 * **Frontend Stack:** Semantic HTML5, CSS3 (Flexbox/Grid, CSS Variables), and Vanilla JavaScript (ES6).
-* **Client vs. Server:** This application runs 100% in the browser client. All equipment inventory, cart states, and checkout restrictions persist locally using the browser's `localStorage` API without requiring an external backend database.
+* **Backend Stack:** PHP 8.5 with PDO for crud operations
+* **Database:** Relational MySql
+* **CSRF Protection:** Handled from client side via JS `sessionStorage` and server side via validation middlware `/backend/config/csrf.php`
 * **Responsive Design:** Includes media-query for mobile devices, tablets, and desktop displays.
 
 ## AI Assistance, Assets and help citation
@@ -115,3 +150,4 @@ Add email confirmation for initial student email provided, code must match and e
 - [Gemini](https://gemini.google.com/)
 - [StackOverflow](https://stackoverflow.com/questions/74913209/how-to-bring-circles-to-a-vertical-line-in-css-for-vertical-timeline)
 - [GoogleFonts](https://fonts.google.com/)
+- [Pinterest](https://www.pinterest.com/)

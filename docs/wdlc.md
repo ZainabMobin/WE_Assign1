@@ -144,8 +144,17 @@ Functions are cleanly isolated by responsibility and invoked explicitly via page
 
 ## Testing
 
-- Functional tests cases with partitions executed via `node:test`.
-- API endpoints tested via Postman.
+Functional tests suites with partitions were executed via `node:test`, with API endpoints tested manually via Postman.
+
+- **Endpoint Verification via Postman:** Manually verified login.php and checkout.php HTTP status codes, session cookies (PHPSESSID), X-CSRF-Token headers, and JSON response payloads.
+
+- **Partition-Based Functional Tests via node:test:** Automated equivalence-partition and combined-partition test functions against login.php and checkout.php, using db_helper.php (backed by config/db.php) for test product seeding, stock/order verification, and post-run cleanup.
+
+Target Endpoint | Key Partitions / Scenarios Covered | Expected Behavior
+-|-|-
+login.php| Email & password valid, invalid, or empty,| 200 with session + csrf_token, 401 on bad credentials, 400 on missing fields
+checkout.php| Valid vs. invalid X-CSRF-Token; authenticated vs. unauthenticated/invalid user; existing vs. missing prod_id; quantity less than or equal to stock vs. greater than stock | 403 on bad CSRF, 401/403 when unauthenticated, 409 with rollback on excess stock, 200 with PENDING order (issue_staff_id = NULL) and decremented stock on valid requests
+
 
 ## Edge cases
 
@@ -166,7 +175,7 @@ Launched via github actions for static html sites. No specific dependencies/ rul
 
 ## Future development
 
-- **Filter and Search:** options to filter equipment in catalogue
-- **Add Privacy policy:** no data taken except for student email for verification of identity. History of student items borrowed and returned
-- **Student Registration and Signin:** track record maintained in database 
+- **Filter and Search:** options to filter equipment in catalogue and pagination
 - **Race conditions:** time between email verification and order confirmation (Add internal order verification stage in the backend)
+- Email service for order verification (Add email confirmation for initial student email provided, code must match and expiry is 10 mins.)
+
