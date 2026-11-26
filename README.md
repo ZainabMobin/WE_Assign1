@@ -18,6 +18,11 @@ php -S 127.0.0.1:8000
 ```
 4. View frontend on: [http://127.0.0.1:8000/frontend/index.html](http://127.0.0.1:8000/frontend/index.html)
 
+5. Run test suite
+```bash
+node --test test/login.test.js
+```
+
 - start/ensure mysql service daemon is running. 
 - init db: insert the script first of all (or can have a backup file for the db)
 - ensure php is installed, start php server

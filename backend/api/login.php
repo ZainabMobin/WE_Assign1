@@ -51,7 +51,7 @@ try {
     $_SESSION['user_email'] = (string) $user['email'];
 
     if (empty($_SESSION['csrf_token'])){
-        $_SESSION['csrf-token'] = bin2hex(random_bytes(32));
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
     echo json_encode([
@@ -61,7 +61,7 @@ try {
             'user_id' => (int) $user['user_id'],
             'email' => (string) $user['email'],
         ],
-        'csrf_token' => $_SESSION['csrf-token'],
+        'csrf_token' => $_SESSION['csrf_token'],
     ], JSON_UNESCAPED_SLASHES);
     exit;
 } catch (Throwable $e) {

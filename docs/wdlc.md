@@ -142,6 +142,11 @@ Functions are cleanly isolated by responsibility and invoked explicitly via page
 
 # 6. Testing and Launch
 
+## Testing
+
+- Functional tests cases with partitions executed via `node:test`.
+- API endpoints tested via Postman.
+
 ## Edge cases
 
 ### A. Cart & Inventory Constraints

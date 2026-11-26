@@ -1,6 +1,6 @@
 <?php
 
-declare(stict_types=1);
+declare(strict_types=1);
 
 /**
  * Checks if sent csrf token is valid or not
@@ -20,7 +20,12 @@ function requireValidCsrfToken(){
     if ( empty($_SESSION['csrf_token']) || !is_string($_SESSION['csrf_token']) || !is_string($sentToken) ||
             $sentToken === '' || !hash_equals($_SESSION['csrf_token'], $sentToken) ) {
         http_response_code(403);
-        echo json_encode(['ok' => false, 'error' => 'Invalid or missing CSRF token']);
+        echo json_encode(
+            ['ok' => false, 
+            'error' => 'Invalid or missing CSRF token',
+            'debug_has_session_token' => !empty($_SESSION['csrf_token']),
+            'debug_has_sent_header' => $sentToken !== '',
+        ]);
         exit;
     }
 

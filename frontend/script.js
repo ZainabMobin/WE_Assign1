@@ -410,7 +410,7 @@ function setupCheckoutHandler() {
             freshForm.reset();
             lockBorrowEmailInput();
         } catch (err) {
-            console.error('Checkout error:', err);
+            console.error('Checkout error:', err.message, ' ', err.status);
             alert('Network or server error during checkout.');
         } finally {
             if (submitBtn) submitBtn.disabled = false;
@@ -451,6 +451,13 @@ function syncSessionStateFromStorage() {
     if (!csrfToken) {
         csrfToken = sessionStorage.getItem('gearRigToken') || '';
     }
+
+    console.log('[Session Sync]', {
+        currentUserID,
+        currentUserEmail,
+        csrfToken,
+        storageToken: sessionStorage.getItem('gearRigToken'),
+    });
 }
 
 function setLoginFeedback(message, isError = false) {
@@ -518,6 +525,9 @@ function setupLoginHandler() {
                 if (csrfToken) {
                     sessionStorage.setItem('gearRigToken', String(csrfToken));
                 }
+
+                console.log('[CSRF Login] received token:', res.csrf_token, 
+                    'stored in sessionStorage:', sessionStorage.getItem('gearRigToken'));
 
                 window.location.href = './cart.html';
                 return;
@@ -659,9 +669,26 @@ async function postCheckout(userID, items, returnDate = '') {
         'Accept': 'application/json',
     };
 
+    // put clientside token in the header
     if (csrfToken) {
         headers['X-CSRF-Token'] = csrfToken;
     }
+
+    console.log('post checkout ::: [Session Sync]', {
+        currentUserID,
+        currentUserEmail,
+        csrfToken,
+        storageToken: sessionStorage.getItem('gearRigToken'),
+    });
+
+    const bodySent = JSON.stringify({
+            user_id: userID,
+            items,
+            return_date: returnDate,
+        });
+        
+    console.log('BODY SENT', bodySent);
+
 
     const response = await fetch(url, {
         method: 'POST',
@@ -671,7 +698,7 @@ async function postCheckout(userID, items, returnDate = '') {
             user_id: userID,
             items,
             return_date: returnDate,
-        }),
+        }), 
     });
 
     const data = await response.json();

@@ -77,8 +77,8 @@ CREATE TABLE borrow_order (
         REFERENCES staff(staff_id) ON DELETE SET NULL
 );
 
--- 7. BORROWED_ITEMS (Order Items and Pre-Issue Condition)
-CREATE TABLE borrowed_item (
+-- 7. BORROWED ITEMS (Items lines in order with Pre-Issue Condition)
+CREATE TABLE borrow_item (
     borrow_id INT AUTO_INCREMENT PRIMARY KEY,
     qty_borrowed INT NOT NULL CHECK (qty_borrowed > 0),
     condition_out_rating ENUM('EXCELLENT', 'GOOD', 'FAIR', 'DAMAGED', 'BROKEN') 
@@ -93,8 +93,8 @@ CREATE TABLE borrowed_item (
         REFERENCES product(prod_id) ON DELETE RESTRICT
 );
 
--- 8. RETURN_LOGS (Partial/Split Return Events and Post-Return Condition)
-CREATE TABLE return_logs (
+-- 8. RETURN LOGS (Partial/Split Return Events and Post-Return Condition)
+CREATE TABLE return_log (
     return_id INT AUTO_INCREMENT PRIMARY KEY,
     qty_returned INT NOT NULL CHECK (qty_returned > 0),
     return_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -104,7 +104,7 @@ CREATE TABLE return_logs (
     borrow_id INT NOT NULL,
     receive_staff_id INT NOT NULL,
     CONSTRAINT fk_rl_item FOREIGN KEY (borrow_id) 
-        REFERENCES borrowed_item(borrow_id) ON DELETE CASCADE,
+        REFERENCES borrow_item(borrow_id) ON DELETE CASCADE,
     CONSTRAINT fk_rl_staff FOREIGN KEY (receive_staff_id) 
         REFERENCES staff(staff_id) ON DELETE RESTRICT
 );
@@ -163,34 +163,37 @@ INSERT INTO user (user_id, email,password_hash) VALUES
     (5, 'ee.bsds25seecs@nust.edu.pk', '$2y$10$3aXfca0kpoZklURaJizcW.sNiXkvcWYx3tDOqcpRAhvTqJzbaM/zK'), -- Student5
     (6, 'ff.bese24seecs@nust.edu.pk', '$2y$10$rFbA34rOpyYeCbmWRUkWDuN6X.bUQtO.UCqYeCgA0efl0FG/QJr6G'); -- Student6
 
--- Orders (Using issue_staff_id)
-INSERT INTO borrow_order (order_id, user_id, issue_staff_id, status, order_date, due_date) VALUES
-    (1, 1, 1, 'CONFIRMED', '2026-11-10 10:00:00', '2026-12-05'),
-    (2, 2, 1, 'PARTIALLY_RETURNED', '2026-11-11 14:30:00', '2026-12-18'),
-    (3, 3, 2, 'RETURNED', '2026-11-01 09:15:00', '2027-01-04'),
-    (4, 4, NULL, 'PENDING', '2026-11-12 11:00:00', '2027-02-15'),
-    (5, 5, 2, 'CONFIRMED', '2026-11-15 16:00:00', '2026-11-28'),
-    (6, 6, 1, 'CANCELLED', '2026-11-05 12:00:00', '2026-12-10');
 
--- Borrowed Items (Using ENUM ratings + note columns)
-INSERT INTO borrowed_item (borrow_id, order_id, prod_id, qty_borrowed, condition_out_rating, condition_out_notes) VALUES
-    (1, 1, 2, 2, 'GOOD', 'Working, lenses clean'),
-    (2, 1, 1, 1, 'EXCELLENT', 'Intact, power cord included'),
-    (3, 2, 4, 3, 'GOOD', 'Tested audio output, no grille dents'),
-    (4, 3, 3, 10, 'GOOD', 'Rolled clean, no stains'),
-    (5, 3, 2, 3, 'GOOD', 'Tested OK'),
-    (6, 3, 1, 4, 'GOOD', 'Tested OK'),
-    (7, 4, 4, 5, 'GOOD', 'Reserved in depot'),
-    (8, 4, 5, 4, 'GOOD', 'Reserved in depot'),
-    (9,  5, 4, 2, 'GOOD', 'Good condition'),
-    (10, 5, 3, 4, 'GOOD', 'Good condition'),
-    (11, 5, 2, 1, 'GOOD', 'Good condition'),
-    (12, 5, 1, 1, 'GOOD', 'Good condition'),
-    (13, 6, 5, 2, 'FAIR', 'Cover removed');
+-- These will be populated on the fly instead of having them pre-populated
 
--- Return Logs (Using receive_staff_id, borrow_id, and ENUM ratings + notes)
-INSERT INTO return_logs (return_id, borrow_id, receive_staff_id, qty_returned, condition_in_rating, condition_in_notes, return_date) VALUES
-    (1, 3, 2, 2, 'GOOD', 'Minor scuff on casing', '2026-11-16 15:20:00'),
-    (2, 4, 1, 10, 'EXCELLENT', 'Clean, vacuumed before return', '2026-11-14 11:00:00'),
-    (3, 5, 1, 3, 'GOOD', 'All 3 functional', '2026-11-14 11:05:00'),
-    (4, 6, 1, 4, 'GOOD', 'All 4 functional', '2026-11-14 11:10:00');
+-- -- Orders (Using issue_staff_id)
+-- INSERT INTO borrow_order (order_id, user_id, issue_staff_id, status, order_date, due_date) VALUES
+--     (1, 1, 1, 'CONFIRMED', '2026-11-10 10:00:00', '2026-12-05'),
+--     (2, 2, 1, 'PARTIALLY_RETURNED', '2026-11-11 14:30:00', '2026-12-18'),
+--     (3, 3, 2, 'RETURNED', '2026-11-01 09:15:00', '2027-01-04'),
+--     (4, 4, NULL, 'PENDING', '2026-11-12 11:00:00', '2027-02-15'),
+--     (5, 5, 2, 'CONFIRMED', '2026-11-15 16:00:00', '2026-11-28'),
+--     (6, 6, 1, 'CANCELLED', '2026-11-05 12:00:00', '2026-12-10');
+
+-- -- Borrowed Items (Using ENUM ratings + note columns)
+-- INSERT INTO borrow_item (borrow_id, order_id, prod_id, qty_borrowed, condition_out_rating, condition_out_notes) VALUES
+--     (1, 1, 2, 2, 'GOOD', 'Working, lenses clean'),
+--     (2, 1, 1, 1, 'EXCELLENT', 'Intact, power cord included'),
+--     (3, 2, 4, 3, 'GOOD', 'Tested audio output, no grille dents'),
+--     (4, 3, 3, 10, 'GOOD', 'Rolled clean, no stains'),
+--     (5, 3, 2, 3, 'GOOD', 'Tested OK'),
+--     (6, 3, 1, 4, 'GOOD', 'Tested OK'),
+--     (7, 4, 4, 5, 'GOOD', 'Reserved in depot'),
+--     (8, 4, 5, 4, 'GOOD', 'Reserved in depot'),
+--     (9,  5, 4, 2, 'GOOD', 'Good condition'),
+--     (10, 5, 3, 4, 'GOOD', 'Good condition'),
+--     (11, 5, 2, 1, 'GOOD', 'Good condition'),
+--     (12, 5, 1, 1, 'GOOD', 'Good condition'),
+--     (13, 6, 5, 2, 'FAIR', 'Cover removed');
+
+-- -- Return Logs (Using receive_staff_id, borrow_id, and ENUM ratings + notes)
+-- INSERT INTO return_log (return_id, borrow_id, receive_staff_id, qty_returned, condition_in_rating, condition_in_notes, return_date) VALUES
+--     (1, 3, 2, 2, 'GOOD', 'Minor scuff on casing', '2026-11-16 15:20:00'),
+--     (2, 4, 1, 10, 'EXCELLENT', 'Clean, vacuumed before return', '2026-11-14 11:00:00'),
+--     (3, 5, 1, 3, 'GOOD', 'All 3 functional', '2026-11-14 11:05:00'),
+--     (4, 6, 1, 4, 'GOOD', 'All 4 functional', '2026-11-14 11:10:00');
