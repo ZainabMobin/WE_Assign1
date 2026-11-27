@@ -119,7 +119,7 @@ Borrow items ethically and responsibly. Search among a catalogue of quality and 
 
 To maintain a lightweight, fast-loading prototype without a backend server, state management and data handling are handled entirely on the client side using browser storage and decoupled modular functions. 
 
-### A. State Persistence (`localStorage`) and Data Handling
+### A. State Persistence in session State and Data Handling
 The application relies on two primary state keys to synchronize data across multi-page navigation (`catalogue.html` and `cart.html`):
 * **`gearRigEquipment`**: Stores the persistent array of equipment objects, tracking live stock updates, categories, and attributes. Falls back to default seed data if empty.
 * **`gearRigCart`**: Stores the active list of user-selected items mapped by `prodId` and `quantity`.
@@ -130,11 +130,13 @@ The application relies on two primary state keys to synchronize data across mult
 3. **Checkout & Stock Reduction:** 
    * Validates student identity against institutional email constraints (`.edu.pk`).
    * Validates return date boundaries (Current day to a maximum of 4 months out).
-   * Dynamically decrements live stock counts within `equipmentData` based on cart quantities.
-   * Clears the cart array and re-syncs updated inventories back to local storage.
+   * Calls API endpoint to verify order upon checkout
+   * Clears the cart array and reloads updated stock amounts in catalogue.
 
 ### C. Separation of Concerns (Modular Script Design)
+
 Functions are cleanly isolated by responsibility and invoked explicitly via page lifecycle hooks rather than global event listeners:
+
 * **`initializeCatalogue()`**: Manages product grid generation and stock-aware button states on the catalogue page.
 * **`initializeCart()`**: Manages cart table rendering, dynamic date input constraints, and item availability checks.
 * **`attachCartActionListeners()`**: Handles granular quantity increments, decrements, and item deletion.
@@ -171,13 +173,14 @@ checkout.php| Valid vs. invalid X-CSRF-Token; authenticated vs. unauthenticated/
 
 - Assignment 1: Launched via github actions for static html sites. No specific dependencies/ rule sets were required
 
-- Assignment 2: Not launched yet, application runs on local system.
+- Assignment 2: Not launched, application runs on local system.
 
 # 7. Maintenance & Updates
 
 ## Future development
 
-- Catalogue fetch pagination
+- In Catalogue fetch, limit products and add pagination
+- Add out of Stock/Available Filtering
 - **Race conditions:** time between email verification and order confirmation (Add internal order verification stage in the backend)
 - Email service for order verification (Add email confirmation for initial institutional email provided, code must match and expiry is 10 mins.)
 - Role of staff to complete order lifecycle

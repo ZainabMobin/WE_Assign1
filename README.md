@@ -19,9 +19,9 @@ A modular, responsive web prototype designed for university event equipment depo
 ## Setup & Running Instructions
 
 ### Quick Start (Local Execution)
-1. **Clone or Download** this repository to your local machine.
+1. Clone or Download this repository to your local machine.
 2. In case of custom assets, ensure folder structure matches the project layout (`./assets/img/`) and relevant naming scheme.
-3. Log into mysql with user, populate `/backend/.env` with MySQL user credentials:
+3. Populate `/backend/.env` with MySQL user credentials:
 
 ```
 DB_PORT=******
@@ -40,7 +40,8 @@ SOURCE /backend/schema.sql
 ```bash
 php -S 127.0.0.1:8000
 ```
-6. View frontend on: [http://127.0.0.1:8000/frontend/index.html](http://127.0.0.1:8000/frontend/index.html)
+
+6. View frontend on [`http://127.0.0.1:8000/frontend/index.html`](http://127.0.0.1:8000/frontend/index.html)
 
 7. Run test suites
 ```bash
@@ -48,7 +49,7 @@ php -S 127.0.0.1:8000 # server starts running
 node --test test/login.test.js # run test suite <endpoint>.test.js
 ```
 
-### Project Directory Overview
+## Project Directory Overview
 
 ```
 .
@@ -107,10 +108,37 @@ node --test test/login.test.js # run test suite <endpoint>.test.js
 #### Test:
 - `/test` contians test suited for backend endpoints with partition strategy mentioned
 
+
+## Documentation & Links
+
+### Assigned Idea & Core Rules
+
+* **Assigned Idea:** University Equipment Checkout & Depot Logistics (`GearRig`).
+* **Enforced Business Rules:** See **[System Design Note & Business Rules](./docs/design-note.md)**.
+
+### Development of solution
+
+* **[ERD](./docs/img/erd.png)**: Database schema and ERD
+* **[ERD](./docs/img/order-state.png)**: FSM for order state changes
+
+* **[Design Notes & Problem Analysis](./docs/design-note.md)**: Scenario description, pain points and subsequent requirement ellicitation.
+* **[Wireframe Blueprint](./docs/wireframe.md)**: Layout architecture and UI wireframe flows for landing catalogue and cart pages.
+* **[WDLC Documentation Stages](./docs/wdlc.md)**:  Complete lifecycle documentation from Information Gathering to System Design.
+* **[User Flow](./docs/userflow.md)**: documented steps for application usage for the role 'borrower'.
+
 ## Assignment 2 deliverables:
+### Architecture Requirements
+
+* **Frontend:** Semantic HTML5, CSS3 (Flexbox/Grid, CSS Variables), and Vanilla JavaScript (ES6).
+* **Backend:** PHP 8.5 with PDO for crud operations
+* **Database:** Relational MySql
+* **CSRF Protection:** Handled from client side via JS `sessionStorage` and server side via validation middlware `/backend/config/csrf.php`
+
+### Technical Implementation 
 
 **FRONTEND:**
 - Show loading, success, empty and error states without unnecessary page reloads.
+- Responsive Design with media-query for mobile devices, tablets, and desktop displays.
 
 **DATABASE:**
 - Mysql schema and seed records
@@ -122,28 +150,6 @@ node --test test/login.test.js # run test suite <endpoint>.test.js
 - Apply session ownership and CSRF protection using the course scaffold where provided.
 - Test at least four cases, including invalid/missing input, a successful update, and an unauthorized or invalid operation. Use browser storage only for a non-sensitive preference.
 
-## Documentation & Links
-
-* **[ERD](./docs/img/erd.png)**: Database schema and ERD
-* **[ERD](./docs/img/order-state.png)**: FSM for order state changes
-
-* **[Design Notes & Problem Analysis](./docs/design-note.md)**: Scenario description, pain points and subsequent requirement ellicitation.
-* **[Wireframe Blueprint](./docs/wireframe.md)**: Layout architecture and UI wireframe flows for landing catalogue and cart pages.
-* **[WDLC Documentation Stages](./docs/wdlc.md)**:  Complete lifecycle documentation from Information Gathering to System Design.
-* **[User Flow](./docs/userflow.md)**: documented steps for application usage for the role 'borrower'.
-
-## Assigned Idea & Core Rules
-
-* **Assigned Idea:** University Equipment Checkout & Depot Logistics (`GearRig`).
-* **Enforced Business Rules: See **[System Design Note & Business Rules](./docs/design-note.md)**.
-
-## Technical Implementation & Architecture
-
-* **Frontend Stack:** Semantic HTML5, CSS3 (Flexbox/Grid, CSS Variables), and Vanilla JavaScript (ES6).
-* **Backend Stack:** PHP 8.5 with PDO for crud operations
-* **Database:** Relational MySql
-* **CSRF Protection:** Handled from client side via JS `sessionStorage` and server side via validation middlware `/backend/config/csrf.php`
-* **Responsive Design:** Includes media-query for mobile devices, tablets, and desktop displays.
 
 ## AI Assistance, Assets and help citation
 
