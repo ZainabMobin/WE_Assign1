@@ -130,6 +130,7 @@ node --test test/login.test.js # run test suite <endpoint>.test.js
 * **[Design Notes & Problem Analysis](./docs/design-note.md)**: Scenario description, pain points and subsequent requirement ellicitation.
 * **[Wireframe Blueprint](./docs/wireframe.md)**: Layout architecture and UI wireframe flows for landing catalogue and cart pages.
 * **[WDLC Documentation Stages](./docs/wdlc.md)**:  Complete lifecycle documentation from Information Gathering to System Design.
+* **[User Flow](./docs/userflow.md)**: documented steps for application usage for the role 'borrower'.
 
 ## Assigned Idea & Core Rules
 
