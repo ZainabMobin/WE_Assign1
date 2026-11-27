@@ -2,38 +2,269 @@ let currentUserID = null;
 let currentUserEmail = '';
 let csrfToken = '';
 let cart = [];
-const CART_SESSION_KEY = 'gearRigSessionCart';
 
-const IMAGE_ENDPOINT = '../backend/api/image.php';
+const CART_SESSION_KEY = 'gearRigSessionCart';
+const IMAGE_API_URL = '../backend/api/image.php'; 
+const LOGIN_API_URL = '../backend/api/login.php';
+const PRODUCTS_API_URL = '../backend/api/products.php';
+const CHECKOUT_API_URL = '../backend/api/checkout.php';
 const FALLBACK_IMG_SRC = 'assets/img/fallback.jpg';
-let equipmentData = [];
 
 // placeholder for filters
 let filters = "";
 
+let allCatalogueProducts = []; // Full in-memory product list from initial load
+let equipmentData = [];        // Currently displayed products
+let availableCategories = [];
+let availableColours = [];
 
-/**
- * 
- * populate product catalogue
- */
-async function initializeCatalogue() {
+// Stores only raw strings like 'Electronics', 'Misc', 'Red', 'None'
+const activeFilters = {
+    name: '',
+    categories: [],
+    colours: [],
+};
 
+async function fetchFilterMetadata() {
+    const res = await fetch(`${PRODUCTS_API_URL}?meta=filters`, {
+        headers: { Accept: 'application/json' },
+    });
+    const data = await res.json();
+
+    const cats = Array.isArray(data?.categories) ? data.categories : [];
+    const cols = Array.isArray(data?.colours) ? data.colours : [];
+
+    availableCategories = cats.includes('Misc') ? [...cats] : [...cats, 'Misc'];
+    availableColours = cols.includes('None') ? [...cols] : [...cols, 'None'];
+}
+
+async function fetchProductsByName(nameQuery) {
+    const params = new URLSearchParams();
+    if (nameQuery.trim() !== '') {
+        params.set('name', nameQuery.trim());
+    }
+    const qs = params.toString();
+    const url = qs ? `${PRODUCTS_API_URL}?${qs}` : PRODUCTS_API_URL;
+
+    const res = await fetch(url, {
+        headers: { Accept: 'application/json' },
+    });
+    const data = await res.json();
+    return Array.isArray(data?.products) ? data.products : [];
+}
+
+function populateFilterDropdowns() {
+    const holders = document.querySelectorAll('.component-filter');
+
+    holders.forEach((filterBox) => {
+        const type = filterBox.dataset.filterType;
+        const unitHolder = filterBox.querySelector('.filter-unit-holder');
+        if (!unitHolder) return;
+
+        unitHolder.innerHTML = '';
+        const list = type === 'category' ? availableCategories : availableColours;
+
+        list.forEach((rawValue) => {
+            const unit = document.createElement('div');
+            unit.className = 'filter-unit';
+            unit.dataset.value = rawValue;
+            unit.textContent = rawValue;
+
+            // Toggle string in activeFilters on click
+            unit.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleFilterValue(type, rawValue);
+            });
+
+            unitHolder.appendChild(unit);
+        });
+    });
+}
+
+function syncSelectedUnitClasses() {
+    document.querySelectorAll('.component-filter').forEach((filterBox) => {
+        const type = filterBox.dataset.filterType;
+        const selectedList = type === 'category' ? activeFilters.categories : activeFilters.colours;
+
+        filterBox.querySelectorAll('.filter-unit').forEach((unit) => {
+            const val = unit.dataset.value;
+            unit.classList.toggle('is-selected', selectedList.includes(val));
+        });
+    });
+}
+
+// Render applied-filters when called after a filter state change
+function renderAppliedFilters() {
+    const wrapper = document.querySelector('.filter-wrapper');
+    const appliedContainer = document.querySelector('.applied-filter');
+    if (!appliedContainer) return;
+
+    appliedContainer.innerHTML = '';
+
+    const entries = [
+        ...activeFilters.categories.map((val) => ({ type: 'category', value: val })),
+        ...activeFilters.colours.map((val) => ({ type: 'colour', value: val })),
+    ];
+
+    entries.forEach(({ type, value }) => {
+        const badge = document.createElement('div');
+        badge.className = 'filter-badge';
+        badge.dataset.filterType = type;
+        badge.dataset.value = value;
+
+        const label = document.createElement('div');
+        label.className = 'filter-value';
+        label.textContent = value; // Pure string: 'Electronics', 'Red', etc.
+
+        const cross = document.createElement('div');
+        cross.className = 'filter-cross';
+        cross.textContent = '×';
+        cross.addEventListener('click', (e) => {
+            e.stopPropagation();
+            removeFilterValue(type, value);
+        });
+
+        badge.appendChild(label);
+        badge.appendChild(cross);
+        appliedContainer.appendChild(badge);
+    });
+
+    if (wrapper) {
+        const hasAny =
+            activeFilters.categories.length > 0 ||
+            activeFilters.colours.length > 0 ||
+            activeFilters.name.trim() !== '';
+        wrapper.classList.toggle('has-active-filters', hasAny);
+    }
+
+    syncSelectedUnitClasses();
+}
+
+function matchesInMemoryFilters(product) {
+    const prodCats = Array.isArray(product.categories) ? product.categories : [];
+    const prodCols = Array.isArray(product.colours) ? product.colours : [];
+
+    if (activeFilters.categories.length > 0) {
+        const catMatch = activeFilters.categories.some((selectedCat) => {
+            if (selectedCat.toLowerCase() === 'misc') {
+                return prodCats.length === 0;
+            }
+            return prodCats.some((c) => c.toLowerCase() === selectedCat.toLowerCase());
+        });
+        if (!catMatch) return false;
+    }
+
+    if (activeFilters.colours.length > 0) {
+        const colMatch = activeFilters.colours.some((selectedCol) => {
+            if (selectedCol.toLowerCase() === 'none') {
+                return prodCols.length === 0;
+            }
+            return prodCols.some((c) => c.toLowerCase() === selectedCol.toLowerCase());
+        });
+        if (!colMatch) return false;
+    }
+
+    return true;
+}
+
+// Only call backend when name is searched
+//  otherwis filter cached in-memory product list
+async function applyFiltersAndRenderCatalogue() {
+    const trimmedName = activeFilters.name.trim();
+    const sourceList = trimmedName !== ''
+        ? await fetchProductsByName(trimmedName)
+        : allCatalogueProducts;
+
+    const filteredList = sourceList.filter(matchesInMemoryFilters);
+    renderProductGrid(filteredList);
+}
+
+function toggleFilterValue(type, rawValue) {
+    const list = type === 'category' ? activeFilters.categories : activeFilters.colours;
+    const idx = list.indexOf(rawValue);
+
+    if (idx >= 0) {
+        list.splice(idx, 1);
+    } else {
+        list.push(rawValue);
+    }
+
+    renderAppliedFilters();
+    applyFiltersAndRenderCatalogue();
+}
+
+function removeFilterValue(type, rawValue) {
+    const list = type === 'category' ? activeFilters.categories : activeFilters.colours;
+    const idx = list.indexOf(rawValue);
+    if (idx === -1) return;
+
+    list.splice(idx, 1);
+    renderAppliedFilters();
+    applyFiltersAndRenderCatalogue();
+}
+
+function clearAllFilters() {
+    const hadFilters =
+        activeFilters.categories.length > 0 ||
+        activeFilters.colours.length > 0 ||
+        activeFilters.name.trim() !== '';
+
+    activeFilters.categories.length = 0;
+    activeFilters.colours.length = 0;
+    activeFilters.name = '';
+
+    const searchInput = document.querySelector('.search-bar input');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+
+    if (!hadFilters) return;
+
+    renderAppliedFilters();
+    applyFiltersAndRenderCatalogue();
+}
+
+function setupFilterEvents() {
+    const searchInput = document.querySelector('.search-bar input');
+    const clearBtn = document.querySelector('.clear-filter');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            activeFilters.name = e.target.value;
+            const wrapper = document.querySelector('.filter-wrapper');
+            if (wrapper) {
+                const hasAny =
+                    activeFilters.categories.length > 0 ||
+                    activeFilters.colours.length > 0 ||
+                    activeFilters.name.trim() !== '';
+                wrapper.classList.toggle('has-active-filters', hasAny);
+            }
+            applyFiltersAndRenderCatalogue();
+        });
+    }
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            clearAllFilters();
+        });
+    }
+}
+
+function renderProductGrid(productsToRender) {
     const gridContainer = document.querySelector('.product-grid');
     if (!gridContainer) return;
 
     gridContainer.innerHTML = '';
+    equipmentData = Array.isArray(productsToRender) ? productsToRender : [];
 
-    const fetchedProducts = await fetchFilteredProducts(filters);
-    equipmentData = Array.isArray(fetchedProducts) ? fetchedProducts : [];
-    
-    equipmentData.forEach(item => {
+    equipmentData.forEach((item) => {
         const isAvailable = item.amount_stock > 0;
 
         const badgeList = document.createElement('div');
         badgeList.classList.add('prod-badges');
 
         if (Array.isArray(item.categories)) {
-            item.categories.forEach(cat => {
+            item.categories.forEach((cat) => {
                 const badge = document.createElement('span');
                 badge.classList.add('badge', 'badge-cat');
                 badge.textContent = cat;
@@ -41,11 +272,10 @@ async function initializeCatalogue() {
             });
         }
 
-        // Supports either a single colour string or an array of colours
-        const colours = Array.isArray(item.colours) ? item.colours : 
-                ( item.colours && item.colours.toLowerCase() !== 'none' ? [item.colours] : [] );
+        const colours = Array.isArray(item.colours)
+            ? item.colours : (item.colours && item.colours.toLowerCase() !== 'none' ? [item.colours] : []);
 
-        colours.forEach(col => {
+        colours.forEach((col) => {
             if (col && String(col).toLowerCase() !== 'none') {
                 const badge = document.createElement('span');
                 badge.classList.add('badge', 'badge-color');
@@ -54,29 +284,21 @@ async function initializeCatalogue() {
             }
         });
 
-
-        // cell for each product
         const cell = document.createElement('div');
         cell.className = 'product-cell';
         if (!isAvailable) cell.classList.add('disable');
 
-
-        // box to hold prod image
         const prodImgBox = document.createElement('div');
         prodImgBox.classList.add('prod-img-box');
         const img = document.createElement('img');
-       
-        fetchProductImageSrc(item.prod_id).
-            then((resolvedSrc) => {
-                console.log(`Frontend got ${resolvedSrc} for ID: ${item.prod_id}`)
-                img.src = resolvedSrc; 
+
+        fetchProductImageSrc(item.prod_id).then((resolvedSrc) => {
+            img.src = resolvedSrc;
         });
 
         img.alt = item.name;
         prodImgBox.appendChild(img);
 
-
-        //prodInfo with name, desc and badges
         const prodInfo = document.createElement('div');
         prodInfo.classList.add('prod-info');
 
@@ -92,8 +314,6 @@ async function initializeCatalogue() {
         prodInfo.appendChild(prodDesc);
         prodInfo.appendChild(badgeList);
 
-
-        // holds availability status 
         const prodStatus = document.createElement('div');
         prodStatus.classList.add('prod-status', isAvailable ? 'status-available' : 'status-unavailable');
 
@@ -107,14 +327,11 @@ async function initializeCatalogue() {
         prodStatus.appendChild(statusDot);
         prodStatus.appendChild(statusText);
 
-
-        // add to cart button
         const prodActionBtn = document.createElement('button');
         prodActionBtn.classList.add('prod-action-btn');
         prodActionBtn.dataset.id = item.prod_id;
         prodActionBtn.disabled = !isAvailable;
         prodActionBtn.textContent = isAvailable ? 'Add to Cart' : 'Unavailable';
-
 
         cell.appendChild(prodImgBox);
         cell.appendChild(prodInfo);
@@ -124,15 +341,13 @@ async function initializeCatalogue() {
         gridContainer.appendChild(cell);
     });
 
-    // Add to Cart event listeners
-    document.querySelectorAll('.prod-action-btn').forEach(button => {
+    document.querySelectorAll('.prod-action-btn').forEach((button) => {
         button.addEventListener('click', (e) => {
             const prod_id = e.target.getAttribute('data-id');
-            const product = equipmentData.find(p => String(p.prod_id) === String(prod_id));
-
+            const product = equipmentData.find((p) => String(p.prod_id) === String(prod_id));
             if (!product) return;
 
-            const existing = cart.find(item => String(item.prod_id ?? item.prodId ) === String(prod_id));
+            const existing = cart.find((item) => String(item.prod_id ?? item.prodId) === String(prod_id));
             if (existing) {
                 if (existing.quantity < product.amount_stock) {
                     existing.quantity += 1;
@@ -145,9 +360,21 @@ async function initializeCatalogue() {
                 saveCartToSession(cart);
                 alert('Item added to cart!');
             }
-
         });
     });
+}
+
+async function initializeCatalogue() {
+    const gridContainer = document.querySelector('.product-grid');
+    if (!gridContainer) return;
+
+    await fetchFilterMetadata();
+    populateFilterDropdowns();
+    setupFilterEvents();
+
+    allCatalogueProducts = await fetchProductsByName('');
+    renderAppliedFilters();
+    renderProductGrid(allCatalogueProducts);
 }
 
 // should fetch data from databse upon reresh
@@ -590,8 +817,7 @@ async function fetchFilteredProducts({ name = '', colour = '', category = '' } =
 
     const query = params.toString();
     const url = query
-    ? `../backend/api/products.php?${query}`
-    : '../backend/api/products.php';
+    ? `${PRODUCTS_API_URL}?${query}` : PRODUCTS_API_URL;
 
     const response = await fetch(url, {
         method: 'GET',
@@ -610,7 +836,7 @@ async function fetchFilteredProducts({ name = '', colour = '', category = '' } =
 // get valid product image path string from php endpoint,  
 async function fetchProductImageSrc(prodId) {
     try {
-        const url = `${IMAGE_ENDPOINT}?prodId=${encodeURIComponent(String(prodId ?? ''))}`;
+        const url = `${IMAGE_API_URL}?prodId=${encodeURIComponent(String(prodId ?? ''))}`;
         const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
         const data = await res.json();
 
@@ -633,7 +859,7 @@ async function fetchProductImageSrc(prodId) {
  */
 async function postAuthInfo(email, password){
 
-    const url = '../backend/api/login.php';
+    const url = LOGIN_API_URL;
 
     const response = await fetch(url, {
         method: 'POST',
@@ -663,7 +889,7 @@ async function postAuthInfo(email, password){
 async function postCheckout(userID, items, returnDate = '') {
     syncSessionStateFromStorage();
 
-    const url = '../backend/api/checkout.php';
+    const url = CHECKOUT_API_URL; 
     const headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/json',

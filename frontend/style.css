@@ -320,7 +320,8 @@ body{
     border-radius: 0.4rem;
     cursor: pointer;
     white-space: nowrap;
-    background-color: var(--primary-color-accent-lighter);
+    color: var(--color-white);
+    background-color: var(--primary-color);
 }
 
 /* Show Clear all once at least one filter is active */

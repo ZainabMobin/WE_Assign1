@@ -15,8 +15,11 @@ Fig. Cart empty initially upon sign in
 
 ### Adds equipment to cart
 
-![add to cart](../docs/img/userflow/)
+![add to cart](../docs/img/userflow/borrower_browse_catalogue.png)
 Fig. Browse equipment from catalogue
+
+![add to cart](../docs/img/userflow/borrower_catalogue_filter.png)
+Fig. Filter equipment cased on colour, category or name
 
 ### Checkout cart
 

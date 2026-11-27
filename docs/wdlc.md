@@ -169,13 +169,15 @@ checkout.php| Valid vs. invalid X-CSRF-Token; authenticated vs. unauthenticated/
 
 ## Launch
 
-Launched via github actions for static html sites. No specific dependencies/ rule sets were required
+- Assignment 1: Launched via github actions for static html sites. No specific dependencies/ rule sets were required
+
+- Assignment 2: Not launched yet, application runs on local system.
 
 # 7. Maintenance & Updates
 
 ## Future development
 
-- **Filter and Search:** options to filter equipment in catalogue and pagination
+- Catalogue fetch pagination
 - **Race conditions:** time between email verification and order confirmation (Add internal order verification stage in the backend)
-- Email service for order verification (Add email confirmation for initial student email provided, code must match and expiry is 10 mins.)
-
+- Email service for order verification (Add email confirmation for initial institutional email provided, code must match and expiry is 10 mins.)
+- Role of staff to complete order lifecycle

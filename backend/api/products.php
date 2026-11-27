@@ -1,9 +1,5 @@
 <?php
 
-// API CALL: http://127.0.0.1:8000/backend/api/products.php?name=light&colour=none&category=none 
-// no colour or category parameters: all values fetched
-// colour being none: fetch products that have no colours associated with it
-
 declare(strict_types=1);
 
 header('Content-Type: application/json; charset=utf-8');
@@ -15,6 +11,32 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 require_once __DIR__ . '/../config/db.php';
+
+/**
+ * Fetch all category names from the category table.
+ */
+function getCategoryList(PDO $db): array
+{
+    $sql = 'SELECT name FROM category ORDER BY category_id ASC';
+    $stmt = $db->prepare($sql);
+    $stmt->execute();
+    $rows = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    return array_values(array_map('strval', $rows ?: []));
+}
+
+/**
+ * Fetch all colour names from the colour table.
+ */
+function getColourList(PDO $db): array
+{
+    $sql = 'SELECT name FROM colour ORDER BY colour_id ASC';
+    $stmt = $db->prepare($sql);
+    $stmt->execute();
+    $rows = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    return array_values(array_map('strval', $rows ?: []));
+}
 
 /**
  * Fetch all products under every colour and category value.
@@ -101,7 +123,6 @@ function getAllProductsSpecificParams(
 
 /**
  * Map colour and category strings onto product rows.
- * Early exit when no product rows are provided.
  */
 function attachColoursAndCategories(PDO $db, array $productRows): array
 {
@@ -122,7 +143,6 @@ function attachColoursAndCategories(PDO $db, array $productRows): array
         ];
     }
 
-    // Colour lookup via product_colour -> colour
     $colSql = '
         SELECT pc.prod_id, col.name AS colour_name
         FROM product_colour pc
@@ -144,7 +164,6 @@ function attachColoursAndCategories(PDO $db, array $productRows): array
         }
     }
 
-    // Category lookup via product_category -> category
     $catSql = '
         SELECT pc.prod_id, cat.name AS category_name
         FROM product_category pc
@@ -169,18 +188,27 @@ function attachColoursAndCategories(PDO $db, array $productRows): array
     return array_values($productsById);
 }
 
-// Read optional query parameters (filter by name, category or colour)
-$nameParam = isset($_GET['name']) && is_string($_GET['name'])
-    ? trim($_GET['name'])
-    : (isset($_GET['q']) && is_string($_GET['q']) ? trim($_GET['q']) : '');
-$colourParam = isset($_GET['colour']) && is_string($_GET['colour'])
-    ? trim($_GET['colour'])
-    : '';
-$categoryParam = isset($_GET['category']) && is_string($_GET['category'])
-    ? trim($_GET['category'])
-    : '';
+$metaParam = isset($_GET['meta']) && is_string($_GET['meta']) ? trim($_GET['meta']) : '';
 
 try {
+    if ($metaParam === 'filters') {
+        echo json_encode([
+            'ok' => true,
+            'categories' => getCategoryList($pdo),
+            'colours' => getColourList($pdo),
+        ], JSON_UNESCAPED_SLASHES);
+        exit;
+    }
+
+    $nameParam = isset($_GET['name']) && is_string($_GET['name'])
+        ? trim($_GET['name']) : (isset($_GET['q']) && is_string($_GET['q']) ? trim($_GET['q']) : '');
+    
+    $colourParam = isset($_GET['colour']) && is_string($_GET['colour'])
+        ? trim($_GET['colour']) : '';
+   
+    $categoryParam = isset($_GET['category']) && is_string($_GET['category'])
+        ? trim($_GET['category']) : '';
+
     $hasSpecificParams = ($nameParam !== '' || $colourParam !== '' || $categoryParam !== '');
 
     $products = $hasSpecificParams
